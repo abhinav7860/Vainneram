@@ -90,39 +90,6 @@ export function Home({ onNavigate, onEditTrack, onAddToPlaylist, onToggleFavorit
         </div>
       </div>
 
-      {/* Effortless Ways to Add Music Banner (No button click needed) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="p-4 rounded-2xl bg-[#11231a] border border-[#203c2f] flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#183628] flex items-center justify-center text-xl flex-shrink-0">
-            🖱️
-          </div>
-          <div>
-            <h4 className="text-xs font-semibold text-[#f7f2e8]">Drop Songs Anywhere</h4>
-            <p className="text-[11px] text-[#7d9689] mt-0.5">Drag any audio file directly into this browser window to add it instantly.</p>
-          </div>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-[#11231a] border border-[#203c2f] flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#183628] flex items-center justify-center text-xs font-mono font-bold text-[#deb17a] flex-shrink-0">
-            Ctrl+O
-          </div>
-          <div>
-            <h4 className="text-xs font-semibold text-[#f7f2e8]">Quick Keyboard Key</h4>
-            <p className="text-[11px] text-[#7d9689] mt-0.5">Press <kbd className="px-1.5 py-0.5 bg-[#0c1813] border border-[#234434] rounded text-[10px] text-[#deb17a]">Ctrl+O</kbd> or <kbd className="px-1.5 py-0.5 bg-[#0c1813] border border-[#234434] rounded text-[10px] text-[#deb17a]">U</kbd> anywhere to open your file picker.</p>
-          </div>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-[#11231a] border border-[#203c2f] flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#183628] flex items-center justify-center text-xl flex-shrink-0">
-            📁
-          </div>
-          <div>
-            <h4 className="text-xs font-semibold text-[#f7f2e8]">Drop Folder on Disk</h4>
-            <p className="text-[11px] text-[#7d9689] mt-0.5">Copy files directly into the <code className="text-[#deb17a] text-[10px]">drop-music-here/</code> folder on your computer.</p>
-          </div>
-        </div>
-      </div>
-
       {/* Mood Collections Row */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
