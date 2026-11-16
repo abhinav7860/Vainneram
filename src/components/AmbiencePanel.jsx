@@ -492,15 +492,16 @@ export function AmbiencePanel() {
               return (
                 <div
                   key={sc.id}
-                  className={`flex flex-col justify-between p-4 rounded-2xl border transition-all duration-200 relative overflow-hidden bg-gradient-to-b ${sc.cardGlow} ${
+                  onClick={() => sc.toggle()}
+                  className={`flex flex-col justify-between p-4 rounded-2xl border transition-all duration-200 relative overflow-hidden bg-gradient-to-b cursor-pointer select-none group hover:scale-[1.015] active:scale-[0.985] ${sc.cardGlow} ${
                     sc.active
-                      ? 'bg-[#18120c] border-[#3f2b1d] shadow-lg shadow-black/50 ring-1 ring-[#d9822b]/25'
-                      : 'bg-[#120d09] border-[#221811] opacity-80 hover:opacity-100 hover:border-[#2e2118]'
+                      ? 'bg-[#1a130c] border-[#d9822b]/80 shadow-xl shadow-amber-950/30 ring-2 ring-[#d9822b]/50'
+                      : 'bg-[#120d09] border-[#261911] opacity-75 hover:opacity-100 hover:border-[#3d291c]'
                   }`}
                 >
                   {/* Card Header: Icon + Malayalam Title + Subtitle */}
                   <div className="flex items-start gap-3 mb-2 z-10">
-                    <div className={`p-2.5 rounded-2xl bg-[#1a130e] ${sc.iconColor} border border-[#2d1e15] shadow-sm`}>
+                    <div className={`p-2.5 rounded-2xl ${sc.active ? 'bg-[#29170d] ring-1 ring-[#d9822b]/60' : 'bg-[#1a130e]'} ${sc.iconColor} border border-[#2d1e15] shadow-sm transition-all group-hover:scale-105`}>
                       <Icon className="w-5 h-5" />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -518,15 +519,20 @@ export function AmbiencePanel() {
                     <VainneramEqualizer active={sc.active} color={sc.eqColor} barCount={13} />
                   </div>
 
-                  {/* Volume Slider with glowing thumb */}
-                  <div className="mt-2 mb-3 z-10">
+                  {/* Volume Slider with stopPropagation so dragging doesn't toggle tile */}
+                  <div
+                    className="mt-2 mb-3 z-10"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <input
                       type="range"
                       min="0"
                       max="1"
                       step="0.01"
                       value={sc.vol}
+                      onClick={(e) => e.stopPropagation()}
                       onChange={(e) => {
+                        e.stopPropagation();
                         const val = parseFloat(e.target.value);
                         sc.setVol(val);
                         if (!sc.active && val > 0) {
@@ -537,14 +543,17 @@ export function AmbiencePanel() {
                     />
                   </div>
 
-                  {/* Card Footer: Percentage & Toggle */}
+                  {/* Card Footer: Percentage & Toggle Button */}
                   <div className="flex items-center justify-between text-xs font-mono pt-1.5 border-t border-[#231710] z-10">
-                    <span className="text-[#8c7b6f] font-semibold">{percent}%</span>
+                    <span className={`font-semibold ${sc.active ? 'text-[#e5a95d]' : 'text-[#8c7b6f]'}`}>{percent}%</span>
                     <button
-                      onClick={sc.toggle}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        sc.toggle();
+                      }}
                       className={`px-3 py-0.5 rounded-full text-[10px] font-bold tracking-wider transition-all uppercase ${
                         sc.active
-                          ? 'bg-gradient-to-r from-[#382012] to-[#25150c] border border-[#d9822b] text-[#f7f2e8] shadow-sm'
+                          ? 'bg-gradient-to-r from-[#d9822b] to-[#b35a12] text-white shadow-sm ring-1 ring-amber-400/40'
                           : 'bg-[#18110b] border border-[#261b14] text-[#6b5c50] hover:text-[#b8a798]'
                       }`}
                     >
@@ -557,16 +566,17 @@ export function AmbiencePanel() {
 
             {/* Card 8: ഗ്രാമഫോൺ പാട്ടുകൾ / VAINNERAM JUKEBOX */}
             <div
-              className={`flex flex-col justify-between p-4 rounded-2xl border transition-all duration-200 relative overflow-hidden bg-gradient-to-b from-[#2e1c0e]/40 ${
+              onClick={togglePlayPause}
+              className={`flex flex-col justify-between p-4 rounded-2xl border transition-all duration-200 relative overflow-hidden bg-gradient-to-b from-[#2e1c0e]/40 cursor-pointer select-none group hover:scale-[1.015] active:scale-[0.985] ${
                 isPlaying
-                  ? 'bg-[#19130d] border-[#d9822b]/50 shadow-xl shadow-amber-950/25 ring-1 ring-[#d9822b]/40'
-                  : 'bg-[#120d09] border-[#291d15]'
+                  ? 'bg-[#1b140d] border-[#d9822b] shadow-xl shadow-amber-950/35 ring-2 ring-[#d9822b]/50'
+                  : 'bg-[#120d09] border-[#291d15] opacity-85 hover:opacity-100 hover:border-[#3d291c]'
               }`}
             >
               {/* Card Header: Icon + Titles + Volume readout */}
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-start gap-3 min-w-0">
-                  <div className="p-2.5 rounded-2xl bg-[#24170e] text-[#d9822b] border border-[#3e2718] shadow-sm flex-shrink-0">
+                  <div className={`p-2.5 rounded-2xl ${isPlaying ? 'bg-[#2e180c] ring-1 ring-[#d9822b]/60' : 'bg-[#24170e]'} text-[#d9822b] border border-[#3e2718] shadow-sm flex-shrink-0 transition-all group-hover:scale-105`}>
                     <Music className="w-5 h-5" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -602,15 +612,22 @@ export function AmbiencePanel() {
                 </p>
               </div>
 
-              {/* Seek Bar with dual timestamps */}
-              <div className="space-y-1 mb-2">
+              {/* Seek Bar with dual timestamps (stops propagation) */}
+              <div
+                className="space-y-1 mb-2"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <input
                   type="range"
                   min="0"
                   max={duration || 100}
                   step="0.1"
                   value={currentTime}
-                  onChange={(e) => seekTo(parseFloat(e.target.value))}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    seekTo(parseFloat(e.target.value));
+                  }}
                   disabled={!currentTrack}
                   className="w-full cursor-pointer disabled:opacity-30"
                 />
@@ -620,10 +637,16 @@ export function AmbiencePanel() {
                 </div>
               </div>
 
-              {/* Jukebox Transport Controls */}
-              <div className="flex items-center justify-between py-1 border-t border-[#231710]">
+              {/* Jukebox Transport Controls (stops propagation) */}
+              <div
+                className="flex items-center justify-between py-1 border-t border-[#231710]"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <button
-                  onClick={playPrevious}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    playPrevious();
+                  }}
                   disabled={!currentTrack}
                   className="p-1 rounded-lg text-[#8c7b6f] hover:text-[#f7f2e8] hover:bg-[#20150d] disabled:opacity-30 transition-colors"
                   title="Previous"
@@ -632,7 +655,10 @@ export function AmbiencePanel() {
                 </button>
 
                 <button
-                  onClick={togglePlayPause}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    togglePlayPause();
+                  }}
                   disabled={!currentTrack && libraryTracks.length === 0}
                   className="w-8 h-8 rounded-full bg-gradient-to-r from-[#d9822b] to-[#b35a12] hover:from-[#e69a38] hover:to-[#c66718] text-white flex items-center justify-center shadow-lg shadow-black/50 transition-transform active:scale-95 disabled:opacity-40"
                   title={isPlaying ? 'Pause' : 'Play'}
@@ -645,7 +671,10 @@ export function AmbiencePanel() {
                 </button>
 
                 <button
-                  onClick={() => playNext(false)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    playNext(false);
+                  }}
                   disabled={!currentTrack}
                   className="p-1 rounded-lg text-[#8c7b6f] hover:text-[#f7f2e8] hover:bg-[#20150d] disabled:opacity-30 transition-colors"
                   title="Next"
@@ -654,7 +683,10 @@ export function AmbiencePanel() {
                 </button>
 
                 <button
-                  onClick={toggleShuffle}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleShuffle();
+                  }}
                   className={`p-1 rounded-lg transition-colors ${
                     isShuffle ? 'text-[#d9822b] bg-[#29170c]' : 'text-[#6b5c50] hover:text-[#f7f2e8]'
                   }`}
@@ -664,10 +696,17 @@ export function AmbiencePanel() {
                 </button>
               </div>
 
-              {/* Quick Select Song Dropdown */}
-              <div className="relative mt-2" ref={dropdownRef}>
+              {/* Quick Select Song Dropdown (stops propagation) */}
+              <div
+                className="relative mt-2"
+                ref={dropdownRef}
+                onClick={(e) => e.stopPropagation()}
+              >
                 <button
-                  onClick={() => setIsSongDropdownOpen(prev => !prev)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsSongDropdownOpen(prev => !prev);
+                  }}
                   className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-[#1b130e] border border-[#2e2118] text-left text-xs text-[#d5c5b5] hover:text-white hover:border-[#423023] transition-colors"
                 >
                   <div className="flex items-center gap-1.5 truncate">
@@ -687,7 +726,8 @@ export function AmbiencePanel() {
                       libraryTracks.map((tr) => (
                         <button
                           key={tr.id}
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             playTrack(tr);
                             setIsSongDropdownOpen(false);
                           }}
