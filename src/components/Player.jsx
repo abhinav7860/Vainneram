@@ -34,6 +34,8 @@ export function Player() {
     isQueueOpen,
     isLoadingAudio,
     playbackError,
+    isMuffled,
+    isSpatialAudio,
     setIsQueueOpen,
     togglePlayPause,
     seekTo,
@@ -42,7 +44,9 @@ export function Player() {
     playNext,
     playPrevious,
     toggleShuffle,
-    toggleRepeat
+    toggleRepeat,
+    toggleMuffled,
+    toggleSpatialAudio
   } = usePlayer();
 
   const { isEnabled: isAmbienceEnabled, setIsAmbienceOpen } = useAmbience();
@@ -207,7 +211,35 @@ export function Player() {
           </div>
 
           {/* Right: Ambience, Queue & Volume */}
-          <div className="flex items-center justify-end gap-2 md:gap-3 w-1/4 min-w-[120px] md:min-w-[200px]">
+          <div className="flex items-center justify-end gap-1.5 md:gap-2.5 w-1/4 min-w-[130px] md:min-w-[260px]">
+            {/* Vibe (Muffled) Quick Toggle */}
+            <button
+              onClick={toggleMuffled}
+              className={`px-2 py-1.5 rounded-xl border text-[10px] font-mono font-bold tracking-wider transition-all hidden xl:flex items-center gap-1 ${
+                isMuffled
+                  ? 'bg-[#2a170d] border-[#d9822b] text-[#e5a95d] shadow-sm'
+                  : 'bg-[#102019] border-[#1d382c] text-[#6e8578] hover:text-[#f7f2e8]'
+              }`}
+              title="Muffled cozy tea-stall vibe"
+            >
+              <span>VIBE</span>
+              <span className="text-[9px] opacity-75">{isMuffled ? 'ON' : 'OFF'}</span>
+            </button>
+
+            {/* Spatial Audio Quick Toggle */}
+            <button
+              onClick={toggleSpatialAudio}
+              className={`px-2 py-1.5 rounded-xl border text-[10px] font-mono font-bold tracking-wider transition-all hidden xl:flex items-center gap-1 ${
+                isSpatialAudio
+                  ? 'bg-[#122822] border-[#38bdf8] text-[#38bdf8] shadow-sm'
+                  : 'bg-[#102019] border-[#1d382c] text-[#6e8578] hover:text-[#f7f2e8]'
+              }`}
+              title="3D Spatial Stereo Widening"
+            >
+              <span>3D</span>
+              <span className="text-[9px] opacity-75">{isSpatialAudio ? 'ON' : 'OFF'}</span>
+            </button>
+
             {/* Kerala Ambience Button */}
             <button
               onClick={() => setIsAmbienceOpen(true)}
@@ -216,10 +248,10 @@ export function Player() {
                   ? 'bg-[#183628] border-[#d9822b] text-[#e69a38] shadow-md shadow-amber-950/20'
                   : 'bg-[#102019] border-[#1d382c] text-[#7d9487] hover:text-[#f7f2e8] hover:border-[#2b4f3f]'
               }`}
-              title="Kerala Tea Stall Ambience"
+              title="Atmospheric Tea Stall Console"
             >
               <CloudRain className="w-4 h-4" />
-              <span className="text-[11px] font-malayalam hidden lg:inline">മഴ</span>
+              <span className="text-[11px] font-malayalam hidden lg:inline">അന്തരീക്ഷം</span>
             </button>
 
             {/* Queue Toggle */}
@@ -368,6 +400,42 @@ export function Player() {
                 className={`p-2 rounded-lg ${repeatMode !== 'off' ? 'text-[#d9822b]' : 'text-[#6e8578]'}`}
               >
                 {repeatMode === 'one' ? <Repeat1 className="w-5 h-5" /> : <Repeat className="w-5 h-5" />}
+              </button>
+            </div>
+
+            {/* Audio Effects & Ambience Quick Bar in Expanded Player */}
+            <div className="flex items-center justify-center gap-3 w-full pt-4 border-t border-[#1b3428]">
+              <button
+                onClick={toggleMuffled}
+                className={`px-3 py-1.5 rounded-full text-xs font-mono font-medium transition-all border ${
+                  isMuffled
+                    ? 'bg-[#2a170d] border-[#d9822b] text-[#e5a95d]'
+                    : 'bg-[#12221a] border-[#223d30] text-[#7d9487] hover:text-[#f7f2e8]'
+                }`}
+              >
+                VIBE {isMuffled ? '(ON)' : '(OFF)'}
+              </button>
+
+              <button
+                onClick={toggleSpatialAudio}
+                className={`px-3 py-1.5 rounded-full text-xs font-mono font-medium transition-all border ${
+                  isSpatialAudio
+                    ? 'bg-[#122822] border-[#38bdf8] text-[#38bdf8]'
+                    : 'bg-[#12221a] border-[#223d30] text-[#7d9487] hover:text-[#f7f2e8]'
+                }`}
+              >
+                SPATIAL {isSpatialAudio ? '(ON)' : '(OFF)'}
+              </button>
+
+              <button
+                onClick={() => {
+                  setIsExpanded(false);
+                  setIsAmbienceOpen(true);
+                }}
+                className="px-3 py-1.5 rounded-full text-xs font-medium bg-[#162e22] border border-[#2b4d3d] text-[#deb17a] hover:text-[#f7f2e8] flex items-center gap-1.5"
+              >
+                <CloudRain className="w-3.5 h-3.5 text-[#d9822b]" />
+                <span>Console</span>
               </button>
             </div>
           </div>

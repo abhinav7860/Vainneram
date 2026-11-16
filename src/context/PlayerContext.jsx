@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { api } from '../utils/api';
+import { initMediaAudioEffects, setMuffleEffect, setSpatialEffect, resumeAudioContext } from '../utils/audioEffects';
 
 const PlayerContext = createContext(null);
 
@@ -23,9 +24,19 @@ export function PlayerProvider({ children }) {
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [playbackError, setPlaybackError] = useState(null);
 
+  // Muffled (Vibe) and Spatial Audio states
+  const [isMuffled, setIsMuffled] = useState(false);
+  const [isSpatialAudio, setIsSpatialAudio] = useState(false);
+
+  // Sleep Timer states
+  const [sleepTimerMinutes, setSleepTimerMinutes] = useState(null);
+  const [sleepTimerRemaining, setSleepTimerRemaining] = useState(null); // seconds
+  const sleepIntervalRef = useRef(null);
+
   // Initialize Audio element once
   useEffect(() => {
     const audio = new Audio();
+    audio.crossOrigin = 'anonymous';
     audioRef.current = audio;
     audio.volume = volume;
 
@@ -50,6 +61,9 @@ export function PlayerProvider({ children }) {
     const onPlay = () => {
       setIsPlaying(true);
       setIsLoadingAudio(false);
+      // Initialize audio effects graph on first play
+      initMediaAudioEffects(audio);
+      resumeAudioContext();
     };
 
     const onPause = () => {
@@ -82,6 +96,64 @@ export function PlayerProvider({ children }) {
       audio.removeEventListener('error', onError);
     };
   }, []);
+
+  // Update Muffle & Spatial in real-time
+  useEffect(() => {
+    setMuffleEffect(isMuffled);
+  }, [isMuffled]);
+
+  useEffect(() => {
+    setSpatialEffect(isSpatialAudio);
+  }, [isSpatialAudio]);
+
+  const toggleMuffled = () => {
+    setIsMuffled(prev => !prev);
+  };
+
+  const toggleSpatialAudio = () => {
+    setIsSpatialAudio(prev => !prev);
+  };
+
+  // Sleep Timer logic
+  const startSleepTimer = (minutes) => {
+    if (sleepIntervalRef.current) {
+      clearInterval(sleepIntervalRef.current);
+    }
+
+    if (!minutes || minutes <= 0) {
+      setSleepTimerMinutes(null);
+      setSleepTimerRemaining(null);
+      return;
+    }
+
+    const totalSeconds = Math.round(minutes * 60);
+    setSleepTimerMinutes(minutes);
+    setSleepTimerRemaining(totalSeconds);
+
+    sleepIntervalRef.current = setInterval(() => {
+      setSleepTimerRemaining(prev => {
+        if (prev === null || prev <= 1) {
+          clearInterval(sleepIntervalRef.current);
+          // Stop playback smoothly
+          if (audioRef.current) {
+            audioRef.current.pause();
+          }
+          setIsPlaying(false);
+          setSleepTimerMinutes(null);
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const clearSleepTimer = () => {
+    if (sleepIntervalRef.current) {
+      clearInterval(sleepIntervalRef.current);
+    }
+    setSleepTimerMinutes(null);
+    setSleepTimerRemaining(null);
+  };
 
   // Update repeat mode ref for use in onEnded
   const repeatModeRef = useRef(repeatMode);
@@ -116,8 +188,7 @@ export function PlayerProvider({ children }) {
         audio.play().catch(console.error);
         return;
       }
-
-      playNext(true); // auto next
+      playNext(true);
     };
 
     audio.addEventListener('ended', onEnded);
@@ -144,7 +215,7 @@ export function PlayerProvider({ children }) {
     });
   };
 
-  // Play a specific track, optionally providing a full playlist queue
+  // Play a specific track
   const playTrack = (track, newQueue = null, startIndex = -1) => {
     if (!track) return;
 
@@ -158,7 +229,6 @@ export function PlayerProvider({ children }) {
         targetIndex = newQueue.findIndex(t => t.id === track.id);
       }
     } else {
-      // If no new queue provided, ensure track is in queue
       const existingIdx = targetQueue.findIndex(t => t.id === track.id);
       if (existingIdx !== -1) {
         targetIndex = existingIdx;
@@ -183,7 +253,7 @@ export function PlayerProvider({ children }) {
       audioRef.current.play()
         .then(() => {
           setIsPlaying(true);
-          // Log play in background
+          initMediaAudioEffects(audioRef.current);
           api.logPlay(track.id).catch(console.warn);
         })
         .catch(err => {
@@ -207,7 +277,9 @@ export function PlayerProvider({ children }) {
     if (isPlaying) {
       audioRef.current.pause();
     } else {
-      audioRef.current.play().catch(err => {
+      audioRef.current.play().then(() => {
+        initMediaAudioEffects(audioRef.current);
+      }).catch(err => {
         console.error('Play failed:', err);
         setPlaybackError('Failed to resume playback.');
       });
@@ -236,9 +308,8 @@ export function PlayerProvider({ children }) {
       nextIndex = currentIndex + 1;
       if (nextIndex >= q.length) {
         if (repeatModeRef.current === 'all' || !isAuto) {
-          nextIndex = 0; // Loop back
+          nextIndex = 0;
         } else {
-          // Off & auto ended
           setIsPlaying(false);
           return;
         }
@@ -256,7 +327,6 @@ export function PlayerProvider({ children }) {
     const q = queueRef.current;
     if (q.length === 0) return;
 
-    // If more than 3 seconds in, seek to beginning of current track first
     if (audioRef.current && audioRef.current.currentTime > 3) {
       seekTo(0);
       return;
@@ -292,7 +362,6 @@ export function PlayerProvider({ children }) {
     setQueue(prev => {
       const updated = [...prev, track];
       if (prev.length === 0) {
-        // If queue was empty, start playing
         setTimeout(() => playTrack(track, updated, 0), 50);
       }
       return updated;
@@ -303,7 +372,6 @@ export function PlayerProvider({ children }) {
     setQueue(prev => {
       const updated = prev.filter((_, idx) => idx !== index);
       if (index === queueIndex) {
-        // Removed currently playing track: move to next or stop
         if (updated.length > 0) {
           const nextIdx = index < updated.length ? index : 0;
           setTimeout(() => playTrack(updated[nextIdx], updated, nextIdx), 50);
@@ -331,7 +399,6 @@ export function PlayerProvider({ children }) {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Ignore if user is typing in input or textarea
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
 
       if (e.code === 'Space') {
@@ -373,6 +440,10 @@ export function PlayerProvider({ children }) {
       isQueueOpen,
       isLoadingAudio,
       playbackError,
+      isMuffled,
+      isSpatialAudio,
+      sleepTimerMinutes,
+      sleepTimerRemaining,
       setIsQueueOpen,
       playTrack,
       togglePlayPause,
@@ -386,7 +457,13 @@ export function PlayerProvider({ children }) {
       addToQueue,
       removeFromQueue,
       clearQueue,
-      setCurrentTrack
+      setCurrentTrack,
+      setIsMuffled,
+      setIsSpatialAudio,
+      toggleMuffled,
+      toggleSpatialAudio,
+      startSleepTimer,
+      clearSleepTimer
     }}>
       {children}
     </PlayerContext.Provider>

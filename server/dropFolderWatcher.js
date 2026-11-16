@@ -37,15 +37,39 @@ async function scanDropFolder() {
       if (!audioExts.includes(ext)) continue;
 
       const sourcePath = path.join(dropDir, file);
-      const stat = fs.statSync(sourcePath);
-      if (stat.isDirectory()) continue;
+      let stat;
+      try {
+        stat = fs.statSync(sourcePath);
+      } catch (e) {
+        continue;
+      }
+      if (stat.isDirectory() || stat.size === 0) continue;
+
+      // Check if file is still growing (being actively written)
+      await new Promise(r => setTimeout(r, 400));
+      let stat2;
+      try {
+        stat2 = fs.statSync(sourcePath);
+        if (stat2.size !== stat.size) continue; // still downloading, skip for now
+      } catch (e) {
+        continue;
+      }
 
       // Generate destination in data/uploads/audio/
       const newFilename = `${Date.now()}-${uuidv4().slice(0, 8)}${ext}`;
       const destPath = path.join(audioDir, newFilename);
 
-      // Copy file to uploads
-      fs.copyFileSync(sourcePath, destPath);
+      // Move or copy file to uploads
+      try {
+        fs.renameSync(sourcePath, destPath);
+      } catch (moveErr) {
+        try {
+          fs.copyFileSync(sourcePath, destPath);
+          fs.unlinkSync(sourcePath);
+        } catch (copyErr) {
+          continue; // file busy
+        }
+      }
 
       // Parse metadata
       let title = '';
@@ -88,8 +112,16 @@ async function scanDropFolder() {
         }
       }
 
-      const trackId = uuidv4();
       const sharedUserId = 'shared_library_user';
+
+      // Check if duplicate already exists
+      const existing = db.prepare('SELECT id FROM tracks WHERE user_id = ? AND title = ? AND artist = ?').get(sharedUserId, title, artist);
+      if (existing) {
+        try { fs.unlinkSync(destPath); } catch (e) {}
+        continue;
+      }
+
+      const trackId = uuidv4();
 
       db.prepare(`
         INSERT INTO tracks (

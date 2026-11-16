@@ -78,7 +78,7 @@ export function Sidebar({ currentTab, setCurrentTab }) {
             <div className="flex items-center justify-between mb-1">
               <span className="flex items-center gap-2 text-xs font-semibold text-[#f7f2e8]">
                 <CloudRain className={`w-4 h-4 ${isAmbienceEnabled ? 'text-[#e69a38]' : 'text-[#6e8578]'}`} />
-                Tea Stall Ambience
+                Atmospheric Console
               </span>
               <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
                 isAmbienceEnabled ? 'bg-[#d9822b] text-white' : 'bg-[#1a3328] text-[#81998d]'
@@ -87,7 +87,7 @@ export function Sidebar({ currentTab, setCurrentTab }) {
               </span>
             </div>
             <p className="text-[11px] text-[#81998d] font-malayalam">
-              മഴയുടെയും ചായപ്പീടികയുടെയും ശബ്ദം
+              വൈകുന്നേരം അന്തരീക്ഷം & പ്രീസെറ്റുകൾ
             </p>
           </button>
         </div>

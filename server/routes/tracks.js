@@ -280,6 +280,8 @@ router.get('/:id/stream', authMiddleware, (req, res) => {
         'Accept-Ranges': 'bytes',
         'Content-Length': chunksize,
         'Content-Type': contentType,
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Range'
       };
 
       res.writeHead(206, head);
@@ -289,6 +291,8 @@ router.get('/:id/stream', authMiddleware, (req, res) => {
         'Content-Length': fileSize,
         'Content-Type': contentType,
         'Accept-Ranges': 'bytes',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Range'
       };
       res.writeHead(200, head);
       fs.createReadStream(filePath).pipe(res);

@@ -51,10 +51,11 @@ export function Navbar({ onAddClick }) {
               ? 'bg-[#183628] border-[#d9822b] text-[#e69a38]'
               : 'bg-[#11231b] border-[#1f3a2f] text-[#8ea498] hover:text-[#f7f2e8]'
           }`}
+          title="Open Atmospheric Console & Presets"
         >
           <CloudRain className="w-3.5 h-3.5 text-[#60a5fa]" />
-          <span className="hidden sm:inline">Tea Stall Sounds</span>
-          <span className="font-malayalam text-[10px] text-[#deb17a] hidden lg:inline">ശബ്ദങ്ങൾ</span>
+          <span className="hidden sm:inline">Atmosphere Console</span>
+          <span className="font-malayalam text-[10px] text-[#deb17a] hidden lg:inline">അന്തരീക്ഷം</span>
         </button>
 
         {/* Quick Add Music Button */}
