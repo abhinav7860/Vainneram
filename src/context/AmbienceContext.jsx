@@ -121,31 +121,53 @@ export function AmbienceProvider({ children }) {
     const tInit = setTimeout(triggerThunder, 4000);
     timersRef.current.push(tInit);
 
-    // 3. Kettle & Steaming Chai (Low boil + steam resonance)
+    // 3. Kettle & Steaming Chai (Steady tea kettle steam hiss + heavy brass pot warmth - no ripple)
+    // Continuous steam hiss through the spout
+    const steamNoise = ctx.createBufferSource();
+    steamNoise.buffer = noiseBuffer;
+    steamNoise.loop = true;
+
     const steamFilter = ctx.createBiquadFilter();
-    steamFilter.type = 'lowpass';
-    steamFilter.frequency.value = 520;
+    steamFilter.type = 'bandpass';
+    steamFilter.frequency.value = 2800;
+    steamFilter.Q.value = 1.4;
+
+    const steamSubFilter = ctx.createBiquadFilter();
+    steamSubFilter.type = 'lowpass';
+    steamSubFilter.frequency.value = 4200;
+
+    const steamGain = ctx.createGain();
+    steamGain.gain.value = 0.45;
+
+    steamNoise.connect(steamFilter);
+    steamFilter.connect(steamSubFilter);
+    steamSubFilter.connect(steamGain);
+
+    // Deep, steady heavy brass tea vessel stove body resonance (pure steady tone, no wobble or ripple)
+    const kettleBody = ctx.createOscillator();
+    kettleBody.type = 'sine';
+    kettleBody.frequency.value = 115;
+
+    const kettleBodyFilter = ctx.createBiquadFilter();
+    kettleBodyFilter.type = 'lowpass';
+    kettleBodyFilter.frequency.value = 160;
+
+    const kettleBodyGain = ctx.createGain();
+    kettleBodyGain.gain.value = 0.1;
+
+    kettleBody.connect(kettleBodyFilter);
+    kettleBodyFilter.connect(kettleBodyGain);
 
     const kettleGain = ctx.createGain();
     kettleGain.gain.value = kettleActive ? kettleVol : 0;
     kettleGainRef.current = kettleGain;
 
-    const kettleOsc = ctx.createOscillator();
-    kettleOsc.type = 'sine';
-    kettleOsc.frequency.value = 180;
-    
-    const lfo = ctx.createOscillator();
-    lfo.frequency.value = 3.5;
-    const lfoGain = ctx.createGain();
-    lfoGain.gain.value = 18;
-    lfo.connect(lfoGain);
-    lfoGain.connect(kettleOsc.frequency);
-    lfo.start();
-
-    kettleOsc.connect(steamFilter);
-    steamFilter.connect(kettleGain);
+    steamGain.connect(kettleGain);
+    kettleBodyGain.connect(kettleGain);
     kettleGain.connect(masterGain);
-    kettleOsc.start();
+
+    steamNoise.start();
+    kettleBody.start();
 
     // 4. Tea Glass Clinking & Stirring (Rhythmic metallic spoons & glasses)
     const glassGain = ctx.createGain();
