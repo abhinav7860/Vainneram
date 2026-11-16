@@ -206,7 +206,7 @@ export function AmbiencePanel() {
             <div className="space-y-2.5">
               {soundControls.map((item) => {
                 const Icon = item.icon;
-                const isItemOn = isEnabled && item.active;
+                const isItemOn = item.active;
 
                 return (
                   <div
@@ -252,7 +252,10 @@ export function AmbiencePanel() {
 
                         <button
                           type="button"
-                          onClick={() => toggleSound(item.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleSound(item.id);
+                          }}
                           className={`w-10 h-5 flex items-center rounded-full p-0.5 transition-colors duration-200 ${
                             isItemOn ? 'bg-[#d9822b]' : 'bg-[#1a3025]'
                           }`}
