@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect, useRef } from 'r
 const AmbienceContext = createContext(null);
 
 export function AmbienceProvider({ children }) {
-  // Sound effect active states (matches user's image: Rain, Thunder, Crickets, Chatting, Fireplace, Birds, Wind)
+  // Sound effect active states
   const [rainActive, setRainActive] = useState(false);
   const [thunderActive, setThunderActive] = useState(false);
   const [cricketsActive, setCricketsActive] = useState(false);
@@ -11,6 +11,8 @@ export function AmbienceProvider({ children }) {
   const [fireplaceActive, setFireplaceActive] = useState(false);
   const [birdsActive, setBirdsActive] = useState(false);
   const [windActive, setWindActive] = useState(false);
+  const [kettleActive, setKettleActive] = useState(false);
+  const [glassClinkActive, setGlassClinkActive] = useState(false);
 
   // Volume levels (0 to 1)
   const [rainVol, setRainVol] = useState(0.65);
@@ -20,6 +22,8 @@ export function AmbienceProvider({ children }) {
   const [fireplaceVol, setFireplaceVol] = useState(0.55);
   const [birdsVol, setBirdsVol] = useState(0.50);
   const [windVol, setWindVol] = useState(0.45);
+  const [kettleVol, setKettleVol] = useState(0.40);
+  const [glassClinkVol, setGlassClinkVol] = useState(0.35);
 
   const [activePreset, setActivePreset] = useState(null);
   const [isAmbienceOpen, setIsAmbienceOpen] = useState(false);
@@ -34,13 +38,16 @@ export function AmbienceProvider({ children }) {
   const fireplaceGainRef = useRef(null);
   const birdsGainRef = useRef(null);
   const windGainRef = useRef(null);
+  const kettleGainRef = useRef(null);
+  const glassClinkGainRef = useRef(null);
 
   const thunderTimerRef = useRef(null);
   const cricketsTimerRef = useRef(null);
   const birdsTimerRef = useRef(null);
   const fireplaceTimerRef = useRef(null);
+  const glassClinkTimerRef = useRef(null);
 
-  const isAnySoundActive = rainActive || thunderActive || cricketsActive || chattingActive || fireplaceActive || birdsActive || windActive;
+  const isAnySoundActive = rainActive || thunderActive || cricketsActive || chattingActive || fireplaceActive || birdsActive || windActive || kettleActive || glassClinkActive;
 
   // Initialize Web Audio graph
   const initAudio = () => {
@@ -315,6 +322,55 @@ export function AmbienceProvider({ children }) {
     windGain.connect(masterGain);
     windNoise.start();
 
+    // 8. ☕ കെറ്റിൽ / KETTLE (Steady gentle tea kettle steam hiss)
+    const steamNoise = ctx.createBufferSource();
+    steamNoise.buffer = createNoiseBuffer(8);
+    steamNoise.loop = true;
+
+    const steamFilter = ctx.createBiquadFilter();
+    steamFilter.type = 'bandpass';
+    steamFilter.frequency.value = 2650;
+    steamFilter.Q.value = 1.3;
+
+    const kettleGain = ctx.createGain();
+    kettleGain.gain.value = 0;
+    kettleGainRef.current = kettleGain;
+
+    steamNoise.connect(steamFilter);
+    steamFilter.connect(kettleGain);
+    kettleGain.connect(masterGain);
+    steamNoise.start();
+
+    // 9. 🥄 ഗ്ലാസ് അടി / GLASS CLINK & STIR (Periodic tea glass clink)
+    const glassClinkGain = ctx.createGain();
+    glassClinkGain.gain.value = 0;
+    glassClinkGainRef.current = glassClinkGain;
+    glassClinkGain.connect(masterGain);
+
+    const triggerGlassClink = () => {
+      if (!audioCtxRef.current || audioCtxRef.current.state !== 'running') return;
+      try {
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(2950 + Math.random() * 180, now);
+
+        g.gain.setValueAtTime(0.001, now);
+        g.gain.exponentialRampToValueAtTime(0.22, now + 0.015);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
+
+        osc.connect(g);
+        g.connect(glassClinkGain);
+        osc.start(now);
+        osc.stop(now + 0.26);
+      } catch (e) {}
+
+      const nextClink = 11000 + Math.random() * 17000;
+      glassClinkTimerRef.current = setTimeout(triggerGlassClink, nextClink);
+    };
+    glassClinkTimerRef.current = setTimeout(triggerGlassClink, 3500);
+
     return ctx;
   };
 
@@ -356,6 +412,14 @@ export function AmbienceProvider({ children }) {
     applyGain(windGainRef, windActive, windVol, 0.65);
   }, [windActive, windVol]);
 
+  useEffect(() => {
+    applyGain(kettleGainRef, kettleActive, kettleVol, 0.5);
+  }, [kettleActive, kettleVol]);
+
+  useEffect(() => {
+    applyGain(glassClinkGainRef, glassClinkActive, glassClinkVol, 0.55);
+  }, [glassClinkActive, glassClinkVol]);
+
   // Set individual sound state directly
   const setSoundActive = (soundKey, isActive) => {
     initAudio();
@@ -367,6 +431,8 @@ export function AmbienceProvider({ children }) {
       case 'fireplace': setFireplaceActive(isActive); break;
       case 'birds': setBirdsActive(isActive); break;
       case 'wind': setWindActive(isActive); break;
+      case 'kettle': setKettleActive(isActive); break;
+      case 'glassClink': setGlassClinkActive(isActive); break;
       default: break;
     }
   };
@@ -396,6 +462,12 @@ export function AmbienceProvider({ children }) {
         break;
       case 'wind':
         setWindActive(prev => !prev);
+        break;
+      case 'kettle':
+        setKettleActive(prev => !prev);
+        break;
+      case 'glassClink':
+        setGlassClinkActive(prev => !prev);
         break;
       default:
         break;
@@ -475,6 +547,8 @@ export function AmbienceProvider({ children }) {
       setFireplaceActive(false);
       setBirdsActive(false);
       setWindActive(false);
+      setKettleActive(false);
+      setGlassClinkActive(false);
       setActivePreset(null);
     } else {
       applyPreset('mazha_sandhya');
@@ -485,11 +559,11 @@ export function AmbienceProvider({ children }) {
     <AmbienceContext.Provider value={{
       isEnabled: isAnySoundActive,
       activePreset,
-      rainVol, thunderVol, cricketsVol, chattingVol, fireplaceVol, birdsVol, windVol,
-      rainActive, thunderActive, cricketsActive, chattingActive, fireplaceActive, birdsActive, windActive,
+      rainVol, thunderVol, cricketsVol, chattingVol, fireplaceVol, birdsVol, windVol, kettleVol, glassClinkVol,
+      rainActive, thunderActive, cricketsActive, chattingActive, fireplaceActive, birdsActive, windActive, kettleActive, glassClinkActive,
       isAmbienceOpen,
       setIsAmbienceOpen,
-      setRainVol, setThunderVol, setCricketsVol, setChattingVol, setFireplaceVol, setBirdsVol, setWindVol,
+      setRainVol, setThunderVol, setCricketsVol, setChattingVol, setFireplaceVol, setBirdsVol, setWindVol, setKettleVol, setGlassClinkVol,
       toggleAmbience,
       toggleSound,
       setSoundActive,
