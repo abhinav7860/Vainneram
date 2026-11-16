@@ -8,9 +8,13 @@ const { router: authRouter } = require('./routes/auth');
 const tracksRouter = require('./routes/tracks');
 const playlistsRouter = require('./routes/playlists');
 const statsRouter = require('./routes/stats');
+const { startDropWatcher, scanDropFolder, dropDir } = require('./dropFolderWatcher');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Start watching local drop-music-here/ folder
+startDropWatcher();
 
 // Enable CORS for local Vite dev server and general web usage
 app.use(cors({

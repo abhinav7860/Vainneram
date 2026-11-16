@@ -31,12 +31,12 @@ export function Navbar({ onAddClick }) {
         <div className="hidden md:block">
           <div className="flex items-center gap-2">
             <span className="font-malayalam text-base font-semibold text-[#deb17a]">
-              {greeting.text}, {user?.display_name || user?.username}
+              {greeting.text} — ചായക്കടയിലേക്ക് സ്വാഗതം
             </span>
             <span className="text-xs text-[#718c7e] font-serif-vintage">({greeting.sub})</span>
           </div>
           <p className="text-[11px] text-[#789485]">
-            A cup of warm kattan chaya and your favorite tunes.
+            A cup of warm kattan chaya, gentle rain, and your favorite tunes. <span className="text-[#deb17a]/80 font-mono text-[10px]">Tip: Drop any song anywhere or press Ctrl+O</span>
           </p>
         </div>
       </div>
@@ -53,32 +53,19 @@ export function Navbar({ onAddClick }) {
           }`}
         >
           <CloudRain className="w-3.5 h-3.5 text-[#60a5fa]" />
-          <span className="hidden sm:inline">Rain Sound</span>
-          <span className="font-malayalam text-[10px] text-[#deb17a] hidden lg:inline">മഴ</span>
+          <span className="hidden sm:inline">Tea Stall Sounds</span>
+          <span className="font-malayalam text-[10px] text-[#deb17a] hidden lg:inline">ശബ്ദങ്ങൾ</span>
         </button>
 
         {/* Quick Add Music Button */}
         <button
           onClick={onAddClick}
           className="px-3 py-1.5 rounded-xl bg-[#d9822b] hover:bg-[#e69a38] text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-black/30 transition-transform active:scale-95"
+          title="Or drag and drop songs anywhere onto the screen, or press Ctrl+O"
         >
           <Plus className="w-3.5 h-3.5" />
           <span>Add Music</span>
         </button>
-
-        {/* User profile & Logout */}
-        <div className="flex items-center gap-1 pl-2 border-l border-[#203c30]">
-          <div className="w-8 h-8 rounded-full bg-[#162e24] border border-[#234536] flex items-center justify-center text-xs text-[#deb17a] font-semibold">
-            {user?.display_name ? user.display_name.slice(0, 1).toUpperCase() : 'U'}
-          </div>
-          <button
-            onClick={logout}
-            className="p-2 text-[#7f978a] hover:text-[#e57373] hover:bg-[#1f1616] rounded-lg transition-colors"
-            title="Sign out of personal library"
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
-        </div>
       </div>
     </header>
   );

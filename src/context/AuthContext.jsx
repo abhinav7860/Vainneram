@@ -4,68 +4,31 @@ import { api } from '../utils/api';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState({
+    id: 'shared_library_user',
+    username: 'kattan_chaya_listener',
+    display_name: 'ചായക്കട ലൈബ്രറി (Tea Stall Library)'
+  });
+  const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState(null);
 
-  // Check existing token on mount
+  // Auto-load library session on mount (no login required)
   useEffect(() => {
-    const token = localStorage.getItem('vainneram_token');
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
     api.getCurrentUser()
       .then(res => {
-        setUser(res.user);
-        setStats(res.stats);
+        if (res.user) setUser(res.user);
+        if (res.stats) setStats(res.stats);
       })
       .catch(err => {
-        console.warn('Session expired or invalid:', err.message);
-        localStorage.removeItem('vainneram_token');
-        setUser(null);
-      })
-      .finally(() => {
-        setLoading(false);
+        console.warn('Auto guest session init:', err.message);
       });
   }, []);
-
-  const login = async (identifier, password) => {
-    const res = await api.login(identifier, password);
-    localStorage.setItem('vainneram_token', res.token);
-    setUser(res.user);
-    refreshUser();
-    return res.user;
-  };
-
-  const register = async (username, email, password, displayName) => {
-    const res = await api.register(username, email, password, displayName);
-    localStorage.setItem('vainneram_token', res.token);
-    setUser(res.user);
-    refreshUser();
-    return res.user;
-  };
-
-  const loginAsDemo = async () => {
-    const res = await api.demoLogin();
-    localStorage.setItem('vainneram_token', res.token);
-    setUser(res.user);
-    refreshUser();
-    return res.user;
-  };
-
-  const logout = () => {
-    localStorage.removeItem('vainneram_token');
-    setUser(null);
-    setStats(null);
-  };
 
   const refreshUser = async () => {
     try {
       const res = await api.getCurrentUser();
-      setUser(res.user);
-      setStats(res.stats);
+      if (res.user) setUser(res.user);
+      if (res.stats) setStats(res.stats);
     } catch (err) {
       console.warn('Refresh user error:', err.message);
     }
@@ -76,10 +39,6 @@ export function AuthProvider({ children }) {
       user,
       loading,
       stats,
-      login,
-      register,
-      loginAsDemo,
-      logout,
       refreshUser
     }}>
       {children}

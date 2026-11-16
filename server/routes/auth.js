@@ -229,11 +229,40 @@ router.post('/demo', async (req, res) => {
   }
 });
 
+// Ensure shared default user exists
+function ensureSharedUser() {
+  const sharedId = 'shared_library_user';
+  let user = db.prepare('SELECT * FROM users WHERE id = ?').get(sharedId);
+  if (!user) {
+    db.prepare(`
+      INSERT INTO users (id, username, email, password_hash, display_name)
+      VALUES (?, ?, ?, ?, ?)
+    `).run(
+      sharedId,
+      'kattan_chaya_listener',
+      'library@vainneram.local',
+      '$2a$10$abcdefghijklmnopqrstuvwxyz1234567890',
+      'ചായക്കട ലൈബ്രറി (Tea Stall Library)'
+    );
+    seedStarterTracks(sharedId);
+  }
+}
+ensureSharedUser();
+
+// Guest login / auto-connect (no credentials required)
+router.get('/guest', (req, res) => {
+  ensureSharedUser();
+  const user = db.prepare('SELECT id, username, email, display_name FROM users WHERE id = ?').get('shared_library_user');
+  const token = generateToken(user);
+  return res.json({ user, token });
+});
+
 // Current user profile
 router.get('/me', authMiddleware, (req, res) => {
-  const user = db.prepare('SELECT id, username, email, display_name, created_at FROM users WHERE id = ?').get(req.user.id);
+  ensureSharedUser();
+  let user = db.prepare('SELECT id, username, email, display_name, created_at FROM users WHERE id = ?').get(req.user.id);
   if (!user) {
-    return res.status(404).json({ error: 'User not found' });
+    user = db.prepare('SELECT id, username, email, display_name, created_at FROM users WHERE id = ?').get('shared_library_user');
   }
 
   // Get user track and playlist stats

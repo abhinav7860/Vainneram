@@ -1,0 +1,5 @@
+🍵 Vainneram Music Library - Local Drop Folder
+======================================================
+You can drop or copy any audio files (MP3, WAV, M4A, OGG, FLAC, AAC) into this folder!
+They will be automatically scanned, imported, and added directly to your music library
+without having to click any buttons on the webpage!

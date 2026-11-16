@@ -413,4 +413,15 @@ router.post('/seed-samples', authMiddleware, (req, res) => {
   }
 });
 
+// Scan drop-music-here/ folder
+router.post('/scan-drop-folder', async (req, res) => {
+  try {
+    const { scanDropFolder } = require('../dropFolderWatcher');
+    const added = await scanDropFolder();
+    return res.json({ added, count: added.length });
+  } catch (err) {
+    return res.status(500).json({ error: err.message || 'Drop folder scan error' });
+  }
+});
+
 module.exports = router;

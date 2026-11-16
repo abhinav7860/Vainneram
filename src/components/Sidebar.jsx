@@ -93,8 +93,20 @@ export function Sidebar({ currentTab, setCurrentTab }) {
         </div>
       </div>
 
-      {/* Storage Quota Card */}
-      <div className="p-3.5 rounded-xl bg-[#11231a] border border-[#1e3b2e] space-y-2">
+      {/* Bottom section: Local Drop Folder & Storage */}
+      <div className="space-y-3">
+        <div className="p-3 rounded-xl bg-[#12231b] border border-[#1e392c] text-xs">
+          <p className="text-[11px] font-semibold text-[#deb17a] flex items-center gap-1.5">
+            <span>📁</span>
+            <span>No-Button Auto Import</span>
+          </p>
+          <p className="text-[10px] text-[#7d9689] mt-1 leading-snug">
+            Drop songs anywhere on screen, press <span className="text-[#deb17a] font-mono">Ctrl+O</span>, or copy into <span className="text-[#deb17a] font-mono">drop-music-here/</span>.
+          </p>
+        </div>
+
+        {/* Storage Quota Card */}
+        <div className="p-3.5 rounded-xl bg-[#11231a] border border-[#1e3b2e] space-y-2">
         <div className="flex items-center justify-between text-xs">
           <span className="flex items-center gap-1.5 text-[#8fa498]">
             <HardDrive className="w-3.5 h-3.5 text-[#deb17a]" />
@@ -115,6 +127,7 @@ export function Sidebar({ currentTab, setCurrentTab }) {
           <span>500 MB quota</span>
         </div>
       </div>
-    </aside>
+    </div>
+  </aside>
   );
 }
