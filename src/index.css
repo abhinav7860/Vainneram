@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-deep-forest: #0b1a14;
+    --bg-stall-card: #13241d;
+    --bg-stall-card-hover: #193026;
+    --border-stall: #223c31;
+    --border-accent: #d9822b33;
+    --text-cream: #f7f2e8;
+    --text-muted: #a6b5ad;
+    --amber-warm: #d9822b;
+    --amber-glow: #e69a38;
+    --chai-brown: #331d14;
+    --terracotta: #c25538;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: #0c1813;
+    color: #f7f2e8;
+    background-image: 
+      radial-gradient(circle at 15% 20%, rgba(217, 130, 43, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(38, 92, 70, 0.08) 0%, transparent 50%),
+      linear-gradient(180deg, #0d1a14 0%, #09130f 100%);
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, .font-serif-vintage {
+    font-family: 'Lora', Georgia, serif;
+  }
+
+  .font-malayalam {
+    font-family: 'Gayathri', 'Noto Serif Malayalam', sans-serif;
+  }
+}
+
+/* Custom scrollbars with warm vintage feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0d1a14;
+}
+::-webkit-scrollbar-thumb {
+  background: #254236;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d9822b;
+}
+
+/* Glass & Texture effects */
+.stall-glass {
+  background: rgba(19, 36, 29, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(217, 130, 43, 0.15);
+}
+
+.stall-glass-nav {
+  background: rgba(11, 22, 17, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.stall-card {
+  background: #14271f;
+  border: 1px solid #233f33;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.stall-card:hover {
+  background: #193328;
+  border-color: rgba(217, 130, 43, 0.35);
+  transform: translateY(-2px);
+}
+
+/* Subtle steam animation */
+@keyframes steamPulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translateY(-4px) scale(1.05);
+  }
+}
+
+.animate-steam {
+  animation: steamPulse 4s ease-in-out infinite;
+}
+
+/* Range input styling for volume and audio seek bar */
+input[type="range"] {
+  -webkit-appearance: none;
+  background: #233e32;
+  border-radius: 9999px;
+  height: 6px;
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 14px;
+  width: 14px;
+  border-radius: 50%;
+  background: #d9822b;
+  border: 2px solid #f7f2e8;
+  box-shadow: 0 0 8px rgba(217, 130, 43, 0.5);
+  transition: transform 0.15s ease;
+}
+input[type="range"]:hover::-webkit-slider-thumb {
+  transform: scale(1.25);
+  background: #e69a38;
+}
