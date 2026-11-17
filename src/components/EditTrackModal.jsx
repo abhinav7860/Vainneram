@@ -47,19 +47,19 @@ export function EditTrackModal({ track, isOpen, onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-2xl bg-[#13261f] border border-[#234234] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-2xl bg-[#1c100a] border-2 border-[#422517] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1f3a2e] bg-[#0f1f19]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#382014] bg-[#140b07]">
           <div>
-            <h3 className="font-serif-vintage text-lg font-semibold text-[#f7f2e8]">
-              Edit Track Details
+            <h3 className="font-serif-vintage text-lg font-semibold text-[#fef3c7]">
+              Edit Cassette Details
             </h3>
-            <span className="text-xs font-malayalam text-[#d9822b]">വിവരങ്ങൾ തിരുത്തുക</span>
+            <span className="text-xs font-malayalam text-[#f59e0b]">വിവരങ്ങൾ തിരുത്തുക</span>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-[#8ba094] hover:text-[#f7f2e8] hover:bg-[#1a3327] transition-colors"
+            className="p-1 rounded-lg text-[#a88a74] hover:text-[#fef3c7] hover:bg-[#27140b] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -74,47 +74,47 @@ export function EditTrackModal({ track, isOpen, onClose, onSave }) {
           )}
 
           <div>
-            <label className="block text-xs font-medium text-[#9eb2a7] mb-1.5">
-              Title <span className="text-[#d9822b]">*</span>
+            <label className="block text-xs font-medium text-[#deb17a] mb-1.5">
+              Title <span className="text-[#f59e0b]">*</span>
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-lg bg-[#0d1c15] border border-[#244537] text-sm text-[#f7f2e8] focus:outline-none focus:border-[#d9822b] focus:ring-1 focus:ring-[#d9822b]"
+              className="w-full px-3.5 py-2 rounded-lg bg-[#120a06] border border-[#3d2315] text-sm text-[#fdf6e7] focus:outline-none focus:border-[#d97706] focus:ring-1 focus:ring-[#d97706]"
               placeholder="Track title"
               required
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#9eb2a7] mb-1.5">
-              Artist
+            <label className="block text-xs font-medium text-[#deb17a] mb-1.5">
+              Artist / Singer
             </label>
             <input
               type="text"
               value={artist}
               onChange={(e) => setArtist(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-lg bg-[#0d1c15] border border-[#244537] text-sm text-[#f7f2e8] focus:outline-none focus:border-[#d9822b] focus:ring-1 focus:ring-[#d9822b]"
-              placeholder="Artist or Composer"
+              className="w-full px-3.5 py-2 rounded-lg bg-[#120a06] border border-[#3d2315] text-sm text-[#fdf6e7] focus:outline-none focus:border-[#d97706] focus:ring-1 focus:ring-[#d97706]"
+              placeholder="Singer or Composer"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#9eb2a7] mb-1.5">
-              Album
+            <label className="block text-xs font-medium text-[#deb17a] mb-1.5">
+              Album / Movie
             </label>
             <input
               type="text"
               value={album}
               onChange={(e) => setAlbum(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-lg bg-[#0d1c15] border border-[#244537] text-sm text-[#f7f2e8] focus:outline-none focus:border-[#d9822b] focus:ring-1 focus:ring-[#d9822b]"
-              placeholder="Album or EP name"
+              className="w-full px-3.5 py-2 rounded-lg bg-[#120a06] border border-[#3d2315] text-sm text-[#fdf6e7] focus:outline-none focus:border-[#d97706] focus:ring-1 focus:ring-[#d97706]"
+              placeholder="Movie name"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#9eb2a7] mb-1.5">
+            <label className="block text-xs font-medium text-[#deb17a] mb-1.5">
               Atmosphere / Mood Tag
             </label>
             <div className="grid grid-cols-2 gap-2 pt-1">
@@ -125,8 +125,8 @@ export function EditTrackModal({ track, isOpen, onClose, onSave }) {
                   onClick={() => setMoodTag(m.id)}
                   className={`flex items-center gap-2 p-2 rounded-lg border text-xs text-left transition-all ${
                     moodTag === m.id
-                      ? 'bg-[#1e3c2f] border-[#d9822b] text-[#f7f2e8] shadow-sm'
-                      : 'bg-[#0d1c15] border-[#224133] text-[#8ea498] hover:border-[#35614d]'
+                      ? 'bg-gradient-to-r from-[#2f180d] to-[#211008] border-[#f59e0b] text-[#fef3c7] shadow-sm'
+                      : 'bg-[#120a06] border-[#382014] text-[#a88a74] hover:border-[#52301e]'
                   }`}
                 >
                   <span className="text-base">{m.icon}</span>
@@ -139,18 +139,18 @@ export function EditTrackModal({ track, isOpen, onClose, onSave }) {
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#1f3a2e]">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#382014]">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-medium text-[#9eb2a7] hover:text-[#f7f2e8] transition-colors"
+              className="px-4 py-2 text-xs font-medium text-[#a88a74] hover:text-[#fef3c7] transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="px-5 py-2 rounded-lg bg-[#d9822b] hover:bg-[#e69a38] text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-black/30 transition-all disabled:opacity-50"
+              className="px-5 py-2 rounded-lg bg-gradient-to-r from-[#d97706] to-[#b45309] hover:from-[#f59e0b] hover:to-[#c2410c] text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-amber-950/50 transition-all disabled:opacity-50 border border-[#fed7aa]/30"
             >
               {saving ? 'Saving...' : (
                 <>

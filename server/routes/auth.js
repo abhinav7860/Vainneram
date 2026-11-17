@@ -265,14 +265,14 @@ router.get('/me', authMiddleware, (req, res) => {
     user = db.prepare('SELECT id, username, email, display_name, created_at FROM users WHERE id = ?').get('shared_library_user');
   }
 
-  // Get user track and playlist stats
+  // Get user track and playlist stats across library
   const stats = db.prepare(`
     SELECT 
-      (SELECT COUNT(*) FROM tracks WHERE user_id = ?) as total_tracks,
-      (SELECT COALESCE(SUM(duration), 0) FROM tracks WHERE user_id = ?) as total_duration,
-      (SELECT COALESCE(SUM(file_size), 0) FROM tracks WHERE user_id = ?) as storage_used,
-      (SELECT COUNT(*) FROM playlists WHERE user_id = ?) as total_playlists
-  `).get(user.id, user.id, user.id, user.id);
+      (SELECT COUNT(*) FROM tracks) as total_tracks,
+      (SELECT COALESCE(SUM(duration), 0) FROM tracks) as total_duration,
+      (SELECT COALESCE(SUM(file_size), 0) FROM tracks) as storage_used,
+      (SELECT COUNT(*) FROM playlists) as total_playlists
+  `).get();
 
   return res.json({
     user,

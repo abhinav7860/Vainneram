@@ -176,12 +176,12 @@ router.post('/upload', authMiddleware, upload.fields([
   }
 });
 
-// List tracks for current user with search, filter, and sorting
+// List tracks for library with search, filter, and sorting
 router.get('/', authMiddleware, (req, res) => {
   try {
     const { search, mood, sort = 'recent', favorite } = req.query;
-    let query = 'SELECT * FROM tracks WHERE user_id = ?';
-    const params = [req.user.id];
+    let query = 'SELECT * FROM tracks WHERE 1=1';
+    const params = [];
 
     if (search && search.trim()) {
       query += ' AND (title LIKE ? OR artist LIKE ? OR album LIKE ? OR mood_tag LIKE ?)';
@@ -219,8 +219,8 @@ router.get('/', authMiddleware, (req, res) => {
 
     const tracks = db.prepare(query).all(...params);
 
-    // Also get distinct moods present in user's library
-    const moods = db.prepare('SELECT DISTINCT mood_tag FROM tracks WHERE user_id = ? AND mood_tag IS NOT NULL').all(req.user.id).map(r => r.mood_tag);
+    // Also get distinct moods present in library
+    const moods = db.prepare('SELECT DISTINCT mood_tag FROM tracks WHERE mood_tag IS NOT NULL').all().map(r => r.mood_tag);
 
     return res.json({ tracks, availableMoods: moods });
   } catch (err) {
@@ -231,7 +231,7 @@ router.get('/', authMiddleware, (req, res) => {
 
 // Single track detail
 router.get('/:id', authMiddleware, (req, res) => {
-  const track = db.prepare('SELECT * FROM tracks WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
+  const track = db.prepare('SELECT * FROM tracks WHERE id = ?').get(req.params.id);
   if (!track) {
     return res.status(404).json({ error: 'Track not found' });
   }
@@ -241,14 +241,21 @@ router.get('/:id', authMiddleware, (req, res) => {
 // Stream audio with HTTP 206 Partial Content (range support)
 router.get('/:id/stream', authMiddleware, (req, res) => {
   try {
-    const track = db.prepare('SELECT * FROM tracks WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
+    const track = db.prepare('SELECT * FROM tracks WHERE id = ?').get(req.params.id);
     if (!track) {
       return res.status(404).json({ error: 'Track not found or access denied' });
     }
 
-    const filePath = track.file_path;
+    let filePath = track.file_path;
+    // Cross-platform fallback: if hardcoded absolute path doesn't exist on host, resolve in audioDir
     if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: 'Audio file missing on disk' });
+      const filename = path.basename(filePath);
+      const fallbackPath = path.join(audioDir, filename);
+      if (fs.existsSync(fallbackPath)) {
+        filePath = fallbackPath;
+      } else {
+        return res.status(404).json({ error: 'Audio file missing on disk' });
+      }
     }
 
     const stat = fs.statSync(filePath);
@@ -309,7 +316,7 @@ router.get('/:id/stream', authMiddleware, (req, res) => {
 router.put('/:id', authMiddleware, (req, res) => {
   try {
     const { title, artist, album, mood_tag, is_favorite } = req.body;
-    const track = db.prepare('SELECT * FROM tracks WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
+    const track = db.prepare('SELECT * FROM tracks WHERE id = ?').get(req.params.id);
     if (!track) {
       return res.status(404).json({ error: 'Track not found' });
     }
@@ -323,8 +330,8 @@ router.put('/:id', authMiddleware, (req, res) => {
     db.prepare(`
       UPDATE tracks
       SET title = ?, artist = ?, album = ?, mood_tag = ?, is_favorite = ?
-      WHERE id = ? AND user_id = ?
-    `).run(updatedTitle, updatedArtist, updatedAlbum, updatedMood, updatedFav, req.params.id, req.user.id);
+      WHERE id = ?
+    `).run(updatedTitle, updatedArtist, updatedAlbum, updatedMood, updatedFav, req.params.id);
 
     const updated = db.prepare('SELECT * FROM tracks WHERE id = ?').get(req.params.id);
     return res.json({ message: 'Track updated', track: updated });
@@ -337,13 +344,13 @@ router.put('/:id', authMiddleware, (req, res) => {
 // Toggle favorite
 router.post('/:id/favorite', authMiddleware, (req, res) => {
   try {
-    const track = db.prepare('SELECT is_favorite FROM tracks WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
+    const track = db.prepare('SELECT is_favorite FROM tracks WHERE id = ?').get(req.params.id);
     if (!track) {
       return res.status(404).json({ error: 'Track not found' });
     }
 
     const newFav = track.is_favorite ? 0 : 1;
-    db.prepare('UPDATE tracks SET is_favorite = ? WHERE id = ? AND user_id = ?').run(newFav, req.params.id, req.user.id);
+    db.prepare('UPDATE tracks SET is_favorite = ? WHERE id = ?').run(newFav, req.params.id);
 
     return res.json({ is_favorite: newFav === 1 });
   } catch (err) {
@@ -355,7 +362,7 @@ router.post('/:id/favorite', authMiddleware, (req, res) => {
 // Log track play
 router.post('/:id/play', authMiddleware, (req, res) => {
   try {
-    const track = db.prepare('SELECT id FROM tracks WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
+    const track = db.prepare('SELECT id FROM tracks WHERE id = ?').get(req.params.id);
     if (!track) {
       return res.status(404).json({ error: 'Track not found' });
     }
@@ -369,7 +376,7 @@ router.post('/:id/play', authMiddleware, (req, res) => {
     db.prepare(`
       INSERT INTO listening_history (id, user_id, track_id)
       VALUES (?, ?, ?)
-    `).run(uuidv4(), req.user.id, req.params.id);
+    `).run(uuidv4(), req.user?.id || 'shared_library_user', req.params.id);
 
     return res.json({ success: true });
   } catch (err) {
@@ -381,7 +388,7 @@ router.post('/:id/play', authMiddleware, (req, res) => {
 // Delete track
 router.delete('/:id', authMiddleware, (req, res) => {
   try {
-    const track = db.prepare('SELECT * FROM tracks WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
+    const track = db.prepare('SELECT * FROM tracks WHERE id = ?').get(req.params.id);
     if (!track) {
       return res.status(404).json({ error: 'Track not found' });
     }
@@ -396,7 +403,7 @@ router.delete('/:id', authMiddleware, (req, res) => {
     }
 
     // Delete record (CASCADE handles playlist_tracks and history)
-    db.prepare('DELETE FROM tracks WHERE id = ? AND user_id = ?').run(req.params.id, req.user.id);
+    db.prepare('DELETE FROM tracks WHERE id = ?').run(req.params.id);
 
     return res.json({ message: 'Track deleted successfully' });
   } catch (err) {

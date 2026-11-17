@@ -38,7 +38,7 @@ export const MOOD_DEFINITIONS = [
   { id: 'Rainy Evening', label: 'Rainy Evening', malayalam: 'മഴക്കാലം', icon: '🌧️', desc: 'Gentle raindrops & contemplative rhythms' },
   { id: 'Tea Stall Acoustics', label: 'Tea Stall Acoustics', malayalam: 'ചായപ്പീടിക', icon: '☕', desc: 'Warm acoustic guitars, flutes & rustic chords' },
   { id: 'Warm Chai', label: 'Warm Chai', malayalam: 'കട്ടൻ ചായ', icon: '🫖', desc: 'Cozy, grounded, comforting melodies' },
-  { id: 'Mellow', label: 'Mellow Twilight', malayalam: 'സന്ധ്യാവേള', icon: '🌇', desc: 'Slow, relaxed evening unwinding' },
+  { id: 'Mellow Twilight', label: 'Mellow Twilight', malayalam: 'സന്ധ്യാവേള', icon: '🌇', desc: 'Slow, relaxed evening unwinding' },
   { id: 'Folk Echoes', label: 'Folk Echoes', malayalam: 'നാടൻ ഈണം', icon: '🪕', desc: 'Traditional rustic sounds and warmth' }
 ];
 

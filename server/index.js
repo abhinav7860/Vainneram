@@ -36,13 +36,19 @@ app.use('/api/tracks', tracksRouter);
 app.use('/api/playlists', playlistsRouter);
 app.use('/api/stats', statsRouter);
 
+// Serve ambient sounds directly
+const soundsDir = path.join(__dirname, '..', 'public', 'sounds');
+if (fs.existsSync(soundsDir)) {
+  app.use('/sounds', express.static(soundsDir));
+}
+
 // Serve static frontend in production if built
 const clientDist = path.join(__dirname, '..', 'dist');
 if (fs.existsSync(clientDist)) {
   app.use(express.static(clientDist));
   // In Express 5, fallback middleware serves index.html for SPA routes
   app.use((req, res, next) => {
-    if (req.path.startsWith('/api/')) return next();
+    if (req.path.startsWith('/api/') || req.path.startsWith('/sounds/')) return next();
     if (req.method !== 'GET') return next();
     res.sendFile(path.join(clientDist, 'index.html'));
   });

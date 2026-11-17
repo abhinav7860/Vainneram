@@ -1,3 +1,13 @@
+---
+title: Vainneram Vintage Chayakada
+emoji: 🍵
+colorFrom: amber
+colorTo: yellow
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # വൈകുന്നേരം — Vainneram
 ### Personal Music Library & Kerala Tea-Stall Atmosphere
 

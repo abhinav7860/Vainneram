@@ -55,9 +55,9 @@ export function PlaylistDetail({ playlistId, onBack, onNavigate, onEditTrack, on
 
   if (loading || !playlist) {
     return (
-      <div className="py-20 flex flex-col items-center justify-center text-[#7e9689]">
-        <div className="w-8 h-8 border-2 border-[#d9822b] border-t-transparent rounded-full animate-spin mb-3" />
-        <p className="text-xs">Loading playlist...</p>
+      <div className="py-20 flex flex-col items-center justify-center text-[#a88a74]">
+        <div className="w-8 h-8 border-2 border-[#d97706] border-t-transparent rounded-full animate-spin mb-3" />
+        <p className="text-xs">Loading nostalgic playlist...</p>
       </div>
     );
   }
@@ -69,16 +69,16 @@ export function PlaylistDetail({ playlistId, onBack, onNavigate, onEditTrack, on
       {/* Back button */}
       <button
         onClick={onBack}
-        className="inline-flex items-center gap-1.5 text-xs text-[#8ea498] hover:text-[#f7f2e8] transition-colors"
+        className="inline-flex items-center gap-1.5 text-xs text-[#a88a74] hover:text-[#fef3c7] transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Back to Playlists</span>
       </button>
 
-      {/* Playlist Hero Header */}
-      <div className="relative rounded-3xl overflow-hidden border border-[#234234] bg-gradient-to-r from-[#142820] via-[#10221a] to-[#162d22] p-6 md:p-8 flex flex-col md:flex-row items-center md:items-end gap-6 shadow-xl">
+      {/* Playlist Hero Header with Teak Wood finish */}
+      <div className="relative rounded-3xl overflow-hidden border-2 border-[#3d2315] bg-gradient-to-r from-[#24150d] via-[#1c100a] to-[#160d08] p-6 md:p-8 flex flex-col md:flex-row items-center md:items-end gap-6 shadow-2xl">
         {/* Cover Art / Icon */}
-        <div className="w-40 h-40 md:w-48 md:h-48 rounded-2xl bg-[#0e1d17] border border-[#234536] overflow-hidden flex-shrink-0 flex items-center justify-center shadow-2xl relative">
+        <div className="w-40 h-40 md:w-48 md:h-48 rounded-2xl bg-[#120a06] border-2 border-[#422517] overflow-hidden flex-shrink-0 flex items-center justify-center shadow-2xl relative">
           {tracks.find(t => t.cover_url)?.cover_url ? (
             <img
               src={tracks.find(t => t.cover_url).cover_url}
@@ -88,29 +88,29 @@ export function PlaylistDetail({ playlistId, onBack, onNavigate, onEditTrack, on
           ) : (
             <div className="flex flex-col items-center justify-center text-center p-4">
               <span className="text-5xl mb-2">{mood.icon || '☕'}</span>
-              <span className="font-malayalam text-xs text-[#d9822b]">{mood.malayalam}</span>
+              <span className="font-malayalam text-xs text-[#d97706]">{mood.malayalam}</span>
             </div>
           )}
         </div>
 
         {/* Details & Actions */}
         <div className="flex-1 min-w-0 text-center md:text-left">
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-[#1b372b] border border-[#d9822b]/30 text-[11px] text-[#deb17a] font-medium mb-2">
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-[#1a0e08] border border-[#d97706]/40 text-[11px] text-[#fed7aa] font-medium mb-2">
             <span>{mood.icon}</span>
             <span>{mood.label}</span>
           </div>
 
-          <h2 className="font-serif-vintage text-2xl md:text-4xl font-bold text-[#f7f2e8] break-words">
+          <h2 className="font-serif-vintage text-2xl md:text-4xl font-bold text-[#fef3c7] break-words drop-shadow">
             {playlist.name}
           </h2>
 
           {playlist.description && (
-            <p className="text-xs md:text-sm text-[#8ea498] mt-2 max-w-xl leading-relaxed">
+            <p className="text-xs md:text-sm text-[#d5c3aa] mt-2 max-w-xl leading-relaxed">
               {playlist.description}
             </p>
           )}
 
-          <div className="flex items-center justify-center md:justify-start gap-3 mt-3 text-xs text-[#718c7e] font-mono">
+          <div className="flex items-center justify-center md:justify-start gap-3 mt-3 text-xs text-[#a88a74] font-mono">
             <span>{tracks.length} songs</span>
             <span>•</span>
             <span className="flex items-center gap-1">
@@ -124,7 +124,7 @@ export function PlaylistDetail({ playlistId, onBack, onNavigate, onEditTrack, on
             <button
               onClick={handlePlayAll}
               disabled={tracks.length === 0}
-              className="px-5 py-2.5 rounded-xl bg-[#d9822b] hover:bg-[#e69a38] text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-black/40 transition-transform hover:scale-105 active:scale-95 disabled:opacity-40"
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#d97706] to-[#b45309] hover:from-[#f59e0b] hover:to-[#c2410c] text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-amber-950/50 transition-transform hover:scale-105 active:scale-95 disabled:opacity-40 border border-[#fed7aa]/30"
             >
               <Play className="w-4 h-4 fill-current ml-0.5" />
               <span>Play All</span>
@@ -133,7 +133,7 @@ export function PlaylistDetail({ playlistId, onBack, onNavigate, onEditTrack, on
             <button
               onClick={handleShuffleAll}
               disabled={tracks.length === 0}
-              className="px-4 py-2.5 rounded-xl bg-[#183628] hover:bg-[#204533] border border-[#2b5440] text-[#deb17a] text-xs font-semibold flex items-center gap-2 transition-colors disabled:opacity-40"
+              className="px-4 py-2.5 rounded-xl bg-[#22130b] hover:bg-[#2d190e] border border-[#3e2417] text-[#fed7aa] text-xs font-semibold flex items-center gap-2 transition-colors disabled:opacity-40"
             >
               <Shuffle className="w-4 h-4" />
               <span>Shuffle</span>
@@ -143,7 +143,7 @@ export function PlaylistDetail({ playlistId, onBack, onNavigate, onEditTrack, on
             <div className="relative">
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="p-2.5 rounded-xl bg-[#12241c] hover:bg-[#1a3328] border border-[#203c2f] text-[#8ea498] hover:text-[#f7f2e8] transition-colors"
+                className="p-2.5 rounded-xl bg-[#1f120a] hover:bg-[#2a170e] border border-[#3e2417] text-[#a88a74] hover:text-[#fef3c7] transition-colors"
               >
                 <MoreVertical className="w-4 h-4" />
               </button>
@@ -151,15 +151,15 @@ export function PlaylistDetail({ playlistId, onBack, onNavigate, onEditTrack, on
               {menuOpen && (
                 <>
                   <div className="fixed inset-0 z-20" onClick={() => setMenuOpen(false)} />
-                  <div className="absolute left-0 md:left-auto md:right-0 bottom-full mb-1 z-30 w-44 rounded-xl bg-[#14261e] border border-[#264437] shadow-xl py-1 text-xs">
+                  <div className="absolute left-0 md:left-auto md:right-0 bottom-full mb-1 z-30 w-44 rounded-xl bg-[#1c100a] border border-[#3e2417] shadow-2xl py-1 text-xs">
                     <button
                       onClick={() => {
                         setMenuOpen(false);
                         onEditPlaylist(playlist);
                       }}
-                      className="w-full px-3 py-2 text-left flex items-center gap-2 text-[#dce7e1] hover:bg-[#1d392c]"
+                      className="w-full px-3 py-2 text-left flex items-center gap-2 text-[#fed7aa] hover:bg-[#2a170e]"
                     >
-                      <Edit2 className="w-3.5 h-3.5 text-[#a6b5ad]" />
+                      <Edit2 className="w-3.5 h-3.5 text-[#d97706]" />
                       <span>Edit Playlist</span>
                     </button>
                     <button
@@ -167,7 +167,7 @@ export function PlaylistDetail({ playlistId, onBack, onNavigate, onEditTrack, on
                         setMenuOpen(false);
                         onDeletePlaylist(playlist);
                       }}
-                      className="w-full px-3 py-2 text-left flex items-center gap-2 text-[#e57373] hover:bg-[#2b1816]"
+                      className="w-full px-3 py-2 text-left flex items-center gap-2 text-[#e57373] hover:bg-[#33110e]"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       <span>Delete Playlist</span>
@@ -183,12 +183,12 @@ export function PlaylistDetail({ playlistId, onBack, onNavigate, onEditTrack, on
       {/* Tracks List */}
       <div className="space-y-3">
         <div className="flex items-center justify-between px-2">
-          <h3 className="font-serif-vintage text-base font-semibold text-[#f7f2e8]">
+          <h3 className="font-serif-vintage text-base font-semibold text-[#fef3c7]">
             Songs in Playlist
           </h3>
           <button
             onClick={() => onNavigate('library')}
-            className="text-xs text-[#deb17a] hover:underline flex items-center gap-1"
+            className="text-xs text-[#d97706] hover:underline flex items-center gap-1 font-mono uppercase tracking-wider"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add from Library</span>
@@ -196,14 +196,14 @@ export function PlaylistDetail({ playlistId, onBack, onNavigate, onEditTrack, on
         </div>
 
         {tracks.length === 0 ? (
-          <div className="p-8 rounded-2xl bg-[#102119] border border-[#1f3d2f] text-center space-y-3">
+          <div className="p-8 rounded-2xl bg-[#1a0f09] border border-[#382014] text-center space-y-3">
             <span className="text-3xl block">🎵</span>
-            <p className="text-xs text-[#80998c]">
+            <p className="text-xs text-[#a88a74]">
               No songs in this playlist yet. Add your favorite tracks from your library!
             </p>
             <button
               onClick={() => onNavigate('library')}
-              className="px-4 py-2 rounded-xl bg-[#d9822b] hover:bg-[#e69a38] text-white text-xs font-semibold inline-flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#d97706] to-[#b45309] hover:from-[#f59e0b] hover:to-[#c2410c] text-white text-xs font-semibold inline-flex items-center gap-1.5 border border-[#fed7aa]/30"
             >
               Browse Library
             </button>

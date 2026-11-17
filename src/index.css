@@ -2,27 +2,32 @@
 
 @layer base {
   :root {
-    --bg-deep-forest: #0b1a14;
-    --bg-stall-card: #13241d;
-    --bg-stall-card-hover: #193026;
-    --border-stall: #223c31;
-    --border-accent: #d9822b33;
-    --text-cream: #f7f2e8;
-    --text-muted: #a6b5ad;
-    --amber-warm: #d9822b;
-    --amber-glow: #e69a38;
-    --chai-brown: #331d14;
-    --terracotta: #c25538;
+    --bg-teak-deep: #120a06;
+    --bg-teak-medium: #1c110b;
+    --bg-rosewood-card: #22140d;
+    --bg-rosewood-hover: #2d1a11;
+    --border-wood: #382014;
+    --border-brass: #b45309;
+    --amber-kattan: #d97706;
+    --amber-filament: #f59e0b;
+    --amber-glow: rgba(245, 158, 11, 0.25);
+    --text-cream: #fdf6e7;
+    --text-aged-paper: #d5c3aa;
+    --text-muted-wood: #967f6e;
+    --terracotta-tile: #c2410c;
   }
 
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    background-color: #0c1813;
-    color: #f7f2e8;
+    background-color: #100905;
+    color: #fdf6e7;
     background-image: 
-      radial-gradient(circle at 15% 20%, rgba(217, 130, 43, 0.04) 0%, transparent 40%),
-      radial-gradient(circle at 85% 80%, rgba(38, 92, 70, 0.08) 0%, transparent 50%),
-      linear-gradient(180deg, #0d1a14 0%, #09130f 100%);
+      /* 40W Filament Bulb overhead ambient light cone */
+      radial-gradient(circle at 50% -80px, rgba(245, 158, 11, 0.28) 0%, rgba(217, 119, 6, 0.12) 35%, transparent 68%),
+      radial-gradient(circle at 15% 20%, rgba(180, 83, 9, 0.08) 0%, transparent 45%),
+      radial-gradient(circle at 85% 70%, rgba(146, 64, 14, 0.06) 0%, transparent 50%),
+      /* Deep aged teak timber floor gradient */
+      linear-gradient(180deg, #180e08 0%, #120a06 40%, #0c0604 100%);
     min-height: 100vh;
   }
 
@@ -35,96 +40,209 @@
   }
 }
 
-/* Custom scrollbars with warm vintage feel */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #0d1a14;
-}
-::-webkit-scrollbar-thumb {
-  background: #254236;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #d9822b;
+/* ─────────────────────────────────────────────────────────────── */
+/* KERALA CHAYAKADA ARTIFACTS & TEXTURES                          */
+/* ─────────────────────────────────────────────────────────────── */
+
+/* 1. Vintage Murphy/Philips Radio Woven Fabric Speaker Grill */
+.radio-speaker-grill {
+  background-color: #170d08;
+  background-image: 
+    radial-gradient(#b45309 12%, transparent 13%),
+    radial-gradient(#78350f 12%, transparent 13%);
+  background-size: 7px 7px;
+  background-position: 0 0, 3.5px 3.5px;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.7);
 }
 
-/* Glass & Texture effects */
-.stall-glass {
-  background: rgba(19, 36, 29, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(217, 130, 43, 0.15);
+/* 2. Aged Kerala Teak Wood Plank Panel */
+.chayakada-wood-plank {
+  background: linear-gradient(180deg, #23150e 0%, #1a0f0a 100%);
+  border: 1px solid #3d2316;
+  box-shadow: inset 0 1px 0 rgba(255, 237, 213, 0.08), 0 8px 24px rgba(0, 0, 0, 0.6);
 }
 
-.stall-glass-nav {
-  background: rgba(11, 22, 17, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+/* 3. Chayakada Blackboard Slate ("ചായക്കട സ്ലേറ്റ് ബോർഡ്") */
+.chayakada-slate {
+  background: linear-gradient(145deg, #18110b 0%, #0f0a06 100%);
+  border: 2px solid #3e2618;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 10px 30px rgba(0, 0, 0, 0.7);
 }
 
-.stall-card {
-  background: #14271f;
-  border: 1px solid #233f33;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+/* 4. Vintage Audio Cassette Case (Tharangini / Johny Sagariga style) */
+.cassette-card {
+  background: linear-gradient(180deg, #26160e 0%, #190e08 100%);
+  border: 1px solid #422517;
+  border-radius: 12px;
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(254, 215, 170, 0.15),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.6);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.stall-card:hover {
-  background: #193328;
-  border-color: rgba(217, 130, 43, 0.35);
-  transform: translateY(-2px);
+.cassette-card:hover {
+  background: linear-gradient(180deg, #301b12 0%, #20120a 100%);
+  border-color: #d97706;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.7), 0 0 16px rgba(217, 119, 6, 0.25);
 }
 
-/* Subtle steam animation */
-@keyframes steamPulse {
-  0%, 100% {
-    opacity: 0.3;
-    transform: translateY(0) scale(1);
+/* 5. Analog Tape Deck Persistent Player Bar */
+.chayakada-tape-deck {
+  background: linear-gradient(180deg, #160d08 0%, #0f0805 100%);
+  border-top: 2px solid #3d2215;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(245, 158, 11, 0.25);
+}
+
+/* 6. Steaming Tea Animation */
+@keyframes chayaSteam {
+  0% {
+    opacity: 0.1;
+    transform: translateY(0) scaleX(0.8) scaleY(0.8);
   }
   50% {
-    opacity: 0.7;
-    transform: translateY(-4px) scale(1.05);
+    opacity: 0.8;
+    transform: translateY(-6px) scaleX(1.15) scaleY(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-13px) scaleX(1.3) scaleY(1.3);
   }
 }
 
-.animate-steam {
-  animation: steamPulse 4s ease-in-out infinite;
+.animate-steam-rise {
+  animation: chayaSteam 2.6s ease-in-out infinite;
 }
 
-/* Range input styling for volume and audio seek bar */
+/* 7. Cassette Reel Spool Spinning Animation */
+@keyframes cassetteSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-cassette-spin {
+  animation: cassetteSpin 3.2s linear infinite;
+}
+
+/* 7b. Rotating 33/45 RPM Vinyl Record Animation */
+@keyframes vinylSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-vinyl-spin {
+  animation: vinylSpin 3.6s linear infinite;
+}
+
+/* 8. Soft Filament Light Pulse */
+@keyframes filamentPulse {
+  0%, 100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-filament {
+  animation: filamentPulse 4s ease-in-out infinite;
+}
+
+/* 9. Scrollbar with warm teak finish */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #120a06;
+}
+::-webkit-scrollbar-thumb {
+  background: #382014;
+  border-radius: 4px;
+  border: 1px solid #1f110a;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d97706;
+}
+
+/* 10. Range input sliders styled like vintage radio sliders */
 input[type="range"] {
   -webkit-appearance: none;
-  background: #233e32;
+  background: #23140c;
   border-radius: 9999px;
-  height: 6px;
-  outline: none;
-  cursor: pointer;
+  border: 1px solid #382014;
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  height: 14px;
   width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: #d9822b;
-  border: 2px solid #f7f2e8;
-  box-shadow: 0 0 8px rgba(217, 130, 43, 0.5);
-  transition: transform 0.15s ease;
+  background: #f59e0b;
+  border: 2px solid #29150c;
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+  cursor: pointer;
+  transition: transform 0.1s ease;
 }
-input[type="range"]:hover::-webkit-slider-thumb {
-  transform: scale(1.25);
-  background: #e69a38;
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.18);
+  background: #fbbf24;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #f59e0b;
+  border: 2px solid #29150c;
+  cursor: pointer;
 }
 
-@keyframes vainneram-eq {
-  0% {
-    height: 18%;
-  }
-  50% {
-    height: 95%;
-  }
-  100% {
-    height: 35%;
-  }
+/* Dual Stereo VU Meter Needle Animations */
+@keyframes vuNeedleLeft {
+  0% { transform: rotate(-26deg); }
+  20% { transform: rotate(4deg); }
+  40% { transform: rotate(-12deg); }
+  60% { transform: rotate(14deg); }
+  80% { transform: rotate(-2deg); }
+  100% { transform: rotate(-26deg); }
+}
+
+@keyframes vuNeedleRight {
+  0% { transform: rotate(-22deg); }
+  25% { transform: rotate(10deg); }
+  45% { transform: rotate(-8deg); }
+  65% { transform: rotate(16deg); }
+  85% { transform: rotate(1deg); }
+  100% { transform: rotate(-22deg); }
+}
+
+.animate-vu-needle-left {
+  animation: vuNeedleLeft 0.8s ease-in-out infinite alternate;
+}
+
+.animate-vu-needle-right {
+  animation: vuNeedleRight 0.95s ease-in-out infinite alternate;
+}
+
+/* Gentle Rain on Glass Window Backdrop */
+@keyframes rainTrickle {
+  0% { transform: translateY(-80px); }
+  100% { transform: translateY(80px); }
+}
+
+.rain-window-backdrop {
+  background-image: 
+    radial-gradient(1.5px 35px at 15% 20%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(2px 45px at 35% 65%, rgba(255,255,255,0.35), transparent),
+    radial-gradient(1.5px 30px at 55% 25%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(2px 50px at 75% 70%, rgba(255,255,255,0.35), transparent),
+    radial-gradient(1.5px 40px at 90% 35%, rgba(255,255,255,0.4), transparent);
+  animation: rainTrickle 2s linear infinite;
 }

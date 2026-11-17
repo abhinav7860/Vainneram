@@ -1,0 +1,7 @@
+node_modules
+.git
+.gitignore
+*.log
+ffmpeg.exe
+data/vainneram.db-wal
+data/vainneram.db-shm

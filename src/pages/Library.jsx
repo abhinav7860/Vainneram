@@ -76,47 +76,49 @@ export function Library({ initialMood = 'All', onNavigate, onEditTrack, onAddToP
   return (
     <div className="space-y-6 pb-12">
       {/* Header & Stats */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#1c362b] pb-5">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#382014] pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="font-serif-vintage text-2xl md:text-3xl font-bold text-[#f7f2e8]">
-              My Library
+            <h2 className="font-serif-vintage text-2xl md:text-3xl font-bold text-[#fef3c7]">
+              കാസറ്റ് ശേഖരം • Cassette Library
             </h2>
-            <span className="text-xs font-malayalam text-[#deb17a] px-2 py-0.5 rounded-full bg-[#183628] border border-[#d9822b]/30">
-              എന്റെ പാട്ടുകൾ
+            <span className="text-xs font-malayalam font-bold text-[#fed7aa] px-2.5 py-0.5 rounded-full bg-[#27140b] border border-[#d97706]/40 shadow-inner">
+              113 കാസറ്റുകൾ
             </span>
           </div>
-          <p className="text-xs text-[#8da497] mt-1">
-            {tracks.length} {tracks.length === 1 ? 'track' : 'tracks'} • {formatDuration(totalDuration)} total duration
+          <p className="text-xs text-[#baa290] mt-1 font-sans">
+            {tracks.length} {tracks.length === 1 ? 'cassette' : 'cassettes'} • {formatDuration(totalDuration)} total duration
           </p>
         </div>
 
-        {/* Add Music Action */}
-        <button
-          onClick={() => onNavigate('add')}
-          className="self-start md:self-auto px-4 py-2 rounded-xl bg-[#d9822b] hover:bg-[#e69a38] text-white text-xs font-semibold flex items-center gap-2 shadow-md shadow-black/30 transition-all hover:scale-105 active:scale-95"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add Music</span>
-        </button>
+        {/* Play All Action */}
+        {tracks.length > 0 && (
+          <button
+            onClick={() => {
+              const { playTrack } = usePlayer ? { playTrack: null } : {};
+            }}
+            className="hidden"
+          >
+          </button>
+        )}
       </div>
 
       {/* Search, Filters, and Sorting Bar */}
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
         {/* Search Input */}
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-[#708b7e] absolute left-3.5 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+          <Search className="w-4 h-4 text-[#8a6e5a] absolute left-3.5 top-1/2 transform -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by title, artist, album, mood..."
-            className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#12241c] border border-[#234233] text-xs text-[#f7f2e8] placeholder-[#708b7e] focus:outline-none focus:border-[#d9822b] focus:ring-1 focus:ring-[#d9822b]"
+            placeholder="Search by title, artist, film, mood..."
+            className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#160d08] border border-[#382014] text-xs text-[#fdf6e7] placeholder-[#8a6e5a] focus:outline-none focus:border-[#d97706] focus:ring-1 focus:ring-[#d97706]"
           />
           {search && (
             <button
               onClick={() => setSearch('')}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-[#708b7e] hover:text-[#f7f2e8]"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-[#8a6e5a] hover:text-[#fdf6e7]"
             >
               ✕
             </button>
@@ -128,10 +130,10 @@ export function Library({ initialMood = 'All', onNavigate, onEditTrack, onAddToP
           {/* Favorites filter toggle */}
           <button
             onClick={() => setOnlyFavorites(!onlyFavorites)}
-            className={`px-3 py-2 rounded-xl border text-xs font-medium flex items-center gap-1.5 transition-all flex-shrink-0 ${
+            className={`px-3 py-2 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all flex-shrink-0 ${
               onlyFavorites
-                ? 'bg-[#2e1717] border-[#c25538] text-[#ff8c73]'
-                : 'bg-[#12241c] border-[#234233] text-[#8da497] hover:text-[#f7f2e8]'
+                ? 'bg-[#331109] border-[#c2410c] text-[#ff8c73]'
+                : 'bg-[#160d08] border-[#382014] text-[#baa290] hover:text-[#fdf6e7]'
             }`}
           >
             <Heart className={`w-3.5 h-3.5 ${onlyFavorites ? 'fill-current' : ''}`} />
@@ -139,27 +141,27 @@ export function Library({ initialMood = 'All', onNavigate, onEditTrack, onAddToP
           </button>
 
           {/* Sort Dropdown */}
-          <div className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#12241c] border border-[#234233] text-xs text-[#8da497] flex-shrink-0">
-            <ArrowUpDown className="w-3.5 h-3.5 text-[#deb17a]" />
+          <div className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#160d08] border border-[#382014] text-xs text-[#baa290] flex-shrink-0">
+            <ArrowUpDown className="w-3.5 h-3.5 text-[#d97706]" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-transparent text-xs text-[#f7f2e8] focus:outline-none cursor-pointer pr-1"
+              className="bg-transparent text-xs text-[#fdf6e7] focus:outline-none cursor-pointer pr-1"
             >
-              <option value="recent" className="bg-[#12241c]">Recently Added</option>
-              <option value="title" className="bg-[#12241c]">Title (A-Z)</option>
-              <option value="artist" className="bg-[#12241c]">Artist (A-Z)</option>
-              <option value="duration" className="bg-[#12241c]">Duration</option>
-              <option value="played" className="bg-[#12241c]">Most Played</option>
+              <option value="recent" className="bg-[#160d08]">Recently Added</option>
+              <option value="title" className="bg-[#160d08]">Title (A-Z)</option>
+              <option value="artist" className="bg-[#160d08]">Artist (A-Z)</option>
+              <option value="duration" className="bg-[#160d08]">Duration</option>
+              <option value="played" className="bg-[#160d08]">Most Played</option>
             </select>
           </div>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center bg-[#12241c] border border-[#234233] rounded-xl p-0.5 flex-shrink-0">
+          <div className="flex items-center bg-[#160d08] border border-[#382014] rounded-xl p-0.5 flex-shrink-0">
             <button
               onClick={() => setViewMode('grid')}
               className={`p-1.5 rounded-lg transition-colors ${
-                viewMode === 'grid' ? 'bg-[#1c382b] text-[#deb17a]' : 'text-[#708b7e] hover:text-[#f7f2e8]'
+                viewMode === 'grid' ? 'bg-[#27140b] text-[#f59e0b]' : 'text-[#8a6e5a] hover:text-[#fdf6e7]'
               }`}
               title="Grid View"
             >
@@ -168,7 +170,7 @@ export function Library({ initialMood = 'All', onNavigate, onEditTrack, onAddToP
             <button
               onClick={() => setViewMode('list')}
               className={`p-1.5 rounded-lg transition-colors ${
-                viewMode === 'list' ? 'bg-[#1c382b] text-[#deb17a]' : 'text-[#708b7e] hover:text-[#f7f2e8]'
+                viewMode === 'list' ? 'bg-[#27140b] text-[#f59e0b]' : 'text-[#8a6e5a] hover:text-[#fdf6e7]'
               }`}
               title="List View"
             >
@@ -186,15 +188,15 @@ export function Library({ initialMood = 'All', onNavigate, onEditTrack, onAddToP
             <button
               key={m.id}
               onClick={() => setSelectedMood(m.id)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 flex-shrink-0 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 flex-shrink-0 border ${
                 isActive
-                  ? 'bg-[#d9822b] text-white shadow-md shadow-amber-950/40'
-                  : 'bg-[#12241c] hover:bg-[#183427] border border-[#234233] text-[#8ea498] hover:text-[#f7f2e8]'
+                  ? 'bg-gradient-to-r from-[#d97706] to-[#b45309] text-white shadow-md border-[#f59e0b]/40'
+                  : 'bg-[#160d08] hover:bg-[#22130c] border-[#382014] text-[#baa290] hover:text-[#fdf6e7]'
               }`}
             >
               {m.icon && <span>{m.icon}</span>}
               <span>{m.label}</span>
-              <span className={`text-[10px] font-malayalam ${isActive ? 'text-white/80' : 'text-[#deb17a]/70'}`}>
+              <span className={`text-[10px] font-malayalam ${isActive ? 'text-white/80' : 'text-[#fed7aa]/80'}`}>
                 {m.malayalam}
               </span>
             </button>
@@ -204,48 +206,29 @@ export function Library({ initialMood = 'All', onNavigate, onEditTrack, onAddToP
 
       {/* Track Listing */}
       {loading ? (
-        <div className="py-20 flex flex-col items-center justify-center text-[#7e9689]">
-          <Loader2 className="w-8 h-8 animate-spin text-[#d9822b] mb-3" />
-          <p className="text-xs">Brewing library collection...</p>
+        <div className="py-20 flex flex-col items-center justify-center text-[#a88a74]">
+          <Loader2 className="w-8 h-8 animate-spin text-[#d97706] mb-3" />
+          <p className="text-xs">Brewing nostalgic cassette collection...</p>
         </div>
       ) : tracks.length === 0 ? (
         /* Empty State */
-        <div className="p-12 rounded-3xl bg-[#102119] border border-[#203c2f] text-center max-w-lg mx-auto space-y-4 my-8">
-          <div className="w-16 h-16 rounded-2xl bg-[#183628] border border-[#28503d] mx-auto flex items-center justify-center text-3xl shadow-lg">
+        <div className="p-12 rounded-3xl bg-[#1a0f09] border border-[#3d2315] text-center max-w-lg mx-auto space-y-4 my-8 shadow-xl">
+          <div className="w-16 h-16 rounded-2xl bg-[#27140b] border border-[#4a2b1a] mx-auto flex items-center justify-center text-3xl shadow-inner">
             ☕
           </div>
           <div>
-            <h3 className="font-serif-vintage text-xl font-bold text-[#f7f2e8]">
+            <h3 className="font-serif-vintage text-xl font-bold text-[#fef3c7]">
               {search ? 'No matching songs found' : 'Your library is empty'}
             </h3>
-            <p className="text-xs text-[#80998c] mt-1.5 leading-relaxed">
+            <p className="text-xs text-[#a88a74] mt-1.5 leading-relaxed">
               {search
                 ? `No songs matched "${search}". Try searching another title, artist, or mood.`
-                : 'Upload music you own in MP3, WAV, M4A, or OGG, or load the Kerala tea stall starter pack for instant listening.'}
+                : 'All songs are loaded from your database.'}
             </p>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <button
-              onClick={() => onNavigate('add')}
-              className="px-4 py-2.5 rounded-xl bg-[#d9822b] hover:bg-[#e69a38] text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-black/30"
-            >
-              <Plus className="w-4 h-4" />
-              Upload Audio File
-            </button>
-
-            <button
-              onClick={handleSeedSamples}
-              disabled={seedingSamples}
-              className="px-4 py-2.5 rounded-xl bg-[#183628] hover:bg-[#204533] border border-[#2d5c46] text-[#deb17a] text-xs font-medium flex items-center gap-1.5 disabled:opacity-50"
-            >
-              <Sparkles className="w-4 h-4 text-[#d9822b]" />
-              {seedingSamples ? 'Loading pack...' : 'Load Tea Stall Atmosphere Pack'}
-            </button>
           </div>
         </div>
       ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3.5">
           {tracks.map((track) => (
             <TrackCard
               key={track.id}

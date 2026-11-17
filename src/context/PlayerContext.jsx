@@ -107,11 +107,23 @@ export function PlayerProvider({ children }) {
   }, [isSpatialAudio]);
 
   const toggleMuffled = () => {
-    setIsMuffled(prev => !prev);
+    setIsMuffled(prev => {
+      const next = !prev;
+      if (next) {
+        setIsSpatialAudio(false);
+      }
+      return next;
+    });
   };
 
   const toggleSpatialAudio = () => {
-    setIsSpatialAudio(prev => !prev);
+    setIsSpatialAudio(prev => {
+      const next = !prev;
+      if (next) {
+        setIsMuffled(false);
+      }
+      return next;
+    });
   };
 
   // Sleep Timer logic
@@ -268,6 +280,14 @@ export function PlayerProvider({ children }) {
     if (!currentTrack) {
       if (queue.length > 0) {
         playTrack(queue[0], queue, 0);
+      } else {
+        // Automatically fetch and play a random track from library
+        api.getTracks().then(res => {
+          if (res?.tracks && res.tracks.length > 0) {
+            const randomIdx = Math.floor(Math.random() * res.tracks.length);
+            playTrack(res.tracks[randomIdx], res.tracks, randomIdx);
+          }
+        }).catch(err => console.warn('Could not auto-start track:', err));
       }
       return;
     }

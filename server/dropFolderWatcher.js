@@ -55,23 +55,13 @@ async function scanDropFolder() {
         continue;
       }
 
-      // Generate destination in data/uploads/audio/
-      const newFilename = `${Date.now()}-${uuidv4().slice(0, 8)}${ext}`;
-      const destPath = path.join(audioDir, newFilename);
-
-      // Move or copy file to uploads
-      try {
-        fs.renameSync(sourcePath, destPath);
-      } catch (moveErr) {
-        try {
-          fs.copyFileSync(sourcePath, destPath);
-          fs.unlinkSync(sourcePath);
-        } catch (copyErr) {
-          continue; // file busy
-        }
+      // Check if this file was already processed by file_name or file_path
+      const fileInDb = db.prepare('SELECT id FROM tracks WHERE file_name = ? OR file_path = ?').get(file, sourcePath);
+      if (fileInDb) {
+        continue; // already in library, leave file alone in drop-music-here!
       }
 
-      // Parse metadata
+      // Parse metadata directly from sourcePath
       let title = '';
       let artist = 'Unknown Artist';
       let album = 'Single';
@@ -80,7 +70,7 @@ async function scanDropFolder() {
       let coverUrl = '';
 
       try {
-        const meta = await parseFile(destPath);
+        const meta = await parseFile(sourcePath);
         if (meta) {
           if (meta.common?.title) title = meta.common.title;
           if (meta.common?.artist) artist = meta.common.artist;
@@ -98,7 +88,7 @@ async function scanDropFolder() {
           }
         }
       } catch (err) {
-        console.warn('Metadata parse warning for drop file:', file, err.message);
+        // silent parse warning
       }
 
       if (!title) {
@@ -114,10 +104,10 @@ async function scanDropFolder() {
 
       const sharedUserId = 'shared_library_user';
 
-      // Check if duplicate already exists
+      // Check if duplicate track exists by title & artist
       const existing = db.prepare('SELECT id FROM tracks WHERE user_id = ? AND title = ? AND artist = ?').get(sharedUserId, title, artist);
       if (existing) {
-        try { fs.unlinkSync(destPath); } catch (e) {}
+        // Already exists in DB - do NOT delete from drop folder!
         continue;
       }
 
@@ -134,7 +124,7 @@ async function scanDropFolder() {
         artist,
         album,
         duration,
-        destPath,
+        sourcePath,
         file,
         stat.size,
         'audio/' + ext.replace('.', ''),
@@ -144,12 +134,7 @@ async function scanDropFolder() {
         'Tea Stall Acoustics'
       );
 
-      // Remove from drop folder so it doesn't re-import
-      try {
-        fs.unlinkSync(sourcePath);
-      } catch (e) {}
-
-      console.log(`🍵 Auto-imported "${title}" by ${artist} from drop-music-here/`);
+      console.log(`🍵 Auto-registered "${title}" by ${artist} in drop-music-here/`);
       addedTracks.push({ id: trackId, title, artist });
     }
 

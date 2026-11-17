@@ -6,9 +6,7 @@ const { authMiddleware } = require('../auth');
 // Get user library stats & highlights
 router.get('/', authMiddleware, (req, res) => {
   try {
-    const userId = req.user.id;
-
-    // Aggregate numbers
+    // Aggregate numbers across all tracks in the library
     const aggregate = db.prepare(`
       SELECT 
         COUNT(*) as total_tracks,
@@ -16,37 +14,34 @@ router.get('/', authMiddleware, (req, res) => {
         COALESCE(SUM(file_size), 0) as storage_bytes,
         SUM(CASE WHEN is_favorite = 1 THEN 1 ELSE 0 END) as favorite_count
       FROM tracks
-      WHERE user_id = ?
-    `).get(userId);
+    `).get();
 
-    const playlistCount = db.prepare('SELECT COUNT(*) as count FROM playlists WHERE user_id = ?').get(userId).count;
+    const playlistCount = db.prepare('SELECT COUNT(*) as count FROM playlists').get().count;
 
     // Mood distribution
     const moods = db.prepare(`
       SELECT mood_tag, COUNT(*) as count
       FROM tracks
-      WHERE user_id = ?
       GROUP BY mood_tag
       ORDER BY count DESC
-    `).all(userId);
+    `).all();
 
     // Recently added (up to 8)
     const recentlyAdded = db.prepare(`
       SELECT id, title, artist, album, duration, cover_url, mood_tag, is_favorite, created_at
       FROM tracks
-      WHERE user_id = ?
       ORDER BY created_at DESC
       LIMIT 8
-    `).all(userId);
+    `).all();
 
     // Recently played (up to 8)
     const recentlyPlayed = db.prepare(`
       SELECT id, title, artist, album, duration, cover_url, mood_tag, is_favorite, play_count, last_played_at
       FROM tracks
-      WHERE user_id = ? AND play_count > 0
+      WHERE play_count > 0
       ORDER BY last_played_at DESC
       LIMIT 8
-    `).all(userId);
+    `).all();
 
     // Nominally 500MB personal quota for visualization
     const nominalQuotaBytes = 500 * 1024 * 1024;

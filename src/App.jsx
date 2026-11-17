@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { PlayerProvider, usePlayer } from './context/PlayerContext';
-import { AmbienceProvider } from './context/AmbienceContext';
+import { AmbienceProvider, useAmbience } from './context/AmbienceContext';
 import { Navbar, MobileNav } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
 import { Player } from './components/Player';
 import { QueueDrawer } from './components/QueueDrawer';
-import { AmbiencePanel } from './components/AmbiencePanel';
+import { AtmosphericSplitConsole } from './components/AtmosphericSplitConsole';
 import { EditTrackModal } from './components/EditTrackModal';
 import { AddToPlaylistModal, CreatePlaylistModal } from './components/AddToPlaylistModal';
 
@@ -15,17 +15,18 @@ import { Home } from './pages/Home';
 import { Library } from './pages/Library';
 import { Playlists } from './pages/Playlists';
 import { PlaylistDetail } from './pages/PlaylistDetail';
-import { AddMusic } from './pages/AddMusic';
 import { api } from './utils/api';
 import { UploadCloud, CheckCircle2, Play, Sparkles, FolderDown, X } from 'lucide-react';
 
 function MainApp() {
   const { user, refreshUser } = useAuth();
   const { currentTrack, setCurrentTrack, playTrack } = usePlayer();
+  const { rainActive } = useAmbience();
 
   const [currentTab, setCurrentTab] = useState('home');
   const [activePlaylistId, setActivePlaylistId] = useState(null);
   const [libraryMood, setLibraryMood] = useState('All');
+  const [mobileViewPane, setMobileViewPane] = useState('songs'); // 'songs' | 'atmosphere'
 
   // Modals state
   const [trackToEdit, setTrackToEdit] = useState(null);
@@ -33,149 +34,25 @@ function MainApp() {
   const [isCreatePlaylistOpen, setIsCreatePlaylistOpen] = useState(false);
   const [playlistToEdit, setPlaylistToEdit] = useState(null);
 
-  // Global Drag & Drop anywhere + Direct file input
-  const [isWindowDragging, setIsWindowDragging] = useState(false);
-  const [uploadToast, setUploadToast] = useState(null); // { status: 'uploading' | 'success' | 'error', text: '', track: null }
-  const fileInputRef = useRef(null);
-  const dragCounterRef = useRef(0);
-
-  // Auto-scan drop-music-here/ folder periodically
-  useEffect(() => {
-    const checkDropFolder = async () => {
-      try {
-        const res = await fetch('/api/tracks/scan-drop-folder', { method: 'POST' });
-        const data = await res.json();
-        if (data.count > 0) {
-          refreshUser();
-          setUploadToast({
-            status: 'success',
-            text: `Imported ${data.count} song(s) from local folder!`,
-            track: data.added[0]
-          });
-          setTimeout(() => setUploadToast(null), 5000);
-        }
-      } catch (e) {}
-    };
-
-    const interval = setInterval(checkDropFolder, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Global Drag & Drop and Keyboard Shortcuts (Ctrl+O or U)
-  useEffect(() => {
-    const handleDragEnter = (e) => {
-      e.preventDefault();
-      dragCounterRef.current += 1;
-      if (e.dataTransfer.types && Array.from(e.dataTransfer.types).includes('Files')) {
-        setIsWindowDragging(true);
-      }
-    };
-
-    const handleDragLeave = (e) => {
-      e.preventDefault();
-      dragCounterRef.current -= 1;
-      if (dragCounterRef.current <= 0) {
-        setIsWindowDragging(false);
-        dragCounterRef.current = 0;
-      }
-    };
-
-    const handleDragOver = (e) => {
-      e.preventDefault();
-    };
-
-    const handleDrop = async (e) => {
-      e.preventDefault();
-      setIsWindowDragging(false);
-      dragCounterRef.current = 0;
-
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        const file = e.dataTransfer.files[0];
-        await handleDirectFileUpload(file);
-      }
-    };
-
-    const handleKeyDown = (e) => {
-      // Ignore if in input
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
-
-      // Ctrl+O or U to trigger direct file picker without clicking webpage button
-      if ((e.ctrlKey && e.key === 'o') || (e.key === 'u' || e.key === 'U')) {
-        e.preventDefault();
-        fileInputRef.current?.click();
-      }
-    };
-
-    window.addEventListener('dragenter', handleDragEnter);
-    window.addEventListener('dragleave', handleDragLeave);
-    window.addEventListener('dragover', handleDragOver);
-    window.addEventListener('drop', handleDrop);
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('dragenter', handleDragEnter);
-      window.removeEventListener('dragleave', handleDragLeave);
-      window.removeEventListener('dragover', handleDragOver);
-      window.removeEventListener('drop', handleDrop);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
-
-  // Upload file directly without clicking webpage button
-  const handleDirectFileUpload = async (file) => {
-    if (!file) return;
-
-    const validExts = ['.mp3', '.wav', '.ogg', '.m4a', '.flac', '.aac', '.webm'];
-    const name = file.name.toLowerCase();
-    const hasValidExt = validExts.some(ext => name.endsWith(ext));
-
-    if (!file.type.startsWith('audio/') && !hasValidExt) {
-      setUploadToast({
-        status: 'error',
-        text: `"${file.name}" is not a supported audio format (MP3, WAV, M4A, OGG, FLAC, AAC).`
-      });
-      setTimeout(() => setUploadToast(null), 4000);
+  const handleNavigate = (tab, params = {}) => {
+    if (tab === 'atmosphere') {
+      setMobileViewPane('atmosphere');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
-    try {
-      setUploadToast({
-        status: 'uploading',
-        text: `Adding "${file.name}" to library...`
-      });
-
-      const formData = new FormData();
-      formData.append('audio', file);
-      formData.append('title', file.name.replace(/\.[^/.]+$/, ''));
-      formData.append('mood_tag', 'Tea Stall Acoustics');
-
-      const res = await api.uploadTrackWithProgress(formData);
-      refreshUser();
-
-      setUploadToast({
-        status: 'success',
-        text: `Added "${res.track.title}" to library!`,
-        track: res.track
-      });
-
-      setTimeout(() => setUploadToast(null), 6000);
-    } catch (err) {
-      setUploadToast({
-        status: 'error',
-        text: err.message || 'Upload failed'
-      });
-      setTimeout(() => setUploadToast(null), 4000);
-    }
-  };
-
-  const handleNavigate = (tab, params = {}) => {
+    setMobileViewPane('songs');
     if (params.mood) {
       setLibraryMood(params.mood);
     }
     if (params.playlistId) {
       setActivePlaylistId(params.playlistId);
     }
-    setCurrentTab(tab);
+    if (tab === 'add') {
+      setCurrentTab('library');
+    } else {
+      setCurrentTab(tab);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -234,87 +111,58 @@ function MainApp() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0c1813] text-[#f7f2e8] pb-28 md:pb-24 relative">
-      {/* Hidden file input for shortcut Ctrl+O / U */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="audio/*,.mp3,.wav,.ogg,.m4a,.flac,.aac"
-        onChange={(e) => {
-          if (e.target.files && e.target.files[0]) {
-            handleDirectFileUpload(e.target.files[0]);
-            e.target.value = '';
-          }
-        }}
-        className="hidden"
-      />
-
-      {/* Full-Screen Drag & Drop Overlay */}
-      {isWindowDragging && (
-        <div className="fixed inset-0 z-50 bg-[#0c1813]/90 backdrop-blur-md flex flex-col items-center justify-center border-4 border-dashed border-[#d9822b] m-4 rounded-3xl animate-in fade-in duration-200 pointer-events-none">
-          <div className="w-24 h-24 rounded-3xl bg-[#183628] border border-[#d9822b] flex items-center justify-center text-4xl mb-4 shadow-2xl animate-bounce">
-            🍵
-          </div>
-          <h2 className="font-serif-vintage text-2xl md:text-3xl font-bold text-[#f7f2e8]">
-            Drop your music anywhere
-          </h2>
-          <p className="text-sm text-[#deb17a] mt-2 font-malayalam">
-            പാട്ടുകൾ ഇവിടെ നിക്ഷേപിക്കൂ — നേരിട്ട് ലൈബ്രറിയിലേക്ക്
-          </p>
-          <p className="text-xs text-[#80998c] mt-1">
-            Supports MP3, WAV, M4A, OGG, FLAC, AAC
-          </p>
+    <div className="min-h-screen flex flex-col bg-[#100905] text-[#fdf6e7] pb-36 md:pb-24 relative">
+      {/* Gentle Rainy Window Backdrop (Active when Rain Ambience is playing) */}
+      {rainActive && (
+        <div className="fixed inset-0 pointer-events-none z-10 opacity-30 mix-blend-screen overflow-hidden">
+          <div className="rain-window-backdrop absolute inset-0 scale-125" />
         </div>
       )}
 
-      {/* Floating Upload Toast Notification */}
-      {uploadToast && (
-        <div className="fixed top-16 right-4 md:right-8 z-50 bg-[#142820] border border-[#2b5942] text-[#f7f2e8] p-3.5 rounded-2xl shadow-2xl shadow-black/60 flex items-center gap-3 animate-in slide-in-from-top-4 duration-300 max-w-sm">
-          {uploadToast.status === 'uploading' && (
-            <div className="w-5 h-5 border-2 border-[#d9822b] border-t-transparent rounded-full animate-spin flex-shrink-0" />
-          )}
-          {uploadToast.status === 'success' && (
-            <CheckCircle2 className="w-5 h-5 text-[#4ade80] flex-shrink-0" />
-          )}
-          {uploadToast.status === 'error' && (
-            <span className="text-base flex-shrink-0">⚠️</span>
-          )}
+      {/* Top Navbar with Navigation Tabs */}
+      <Navbar currentTab={currentTab} onNavigate={handleNavigate} />
 
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium text-[#f7f2e8] truncate">
-              {uploadToast.text}
-            </p>
-            {uploadToast.track && (
-              <button
-                onClick={() => {
-                  playTrack(uploadToast.track);
-                  setUploadToast(null);
-                }}
-                className="text-[11px] text-[#deb17a] hover:underline font-semibold flex items-center gap-1 mt-1"
-              >
-                <Play className="w-3 h-3 fill-current" />
-                <span>Play Now</span>
-              </button>
-            )}
-          </div>
-
+      {/* Tablet/Medium Screen View Switcher (Only visible between sm and lg; mobile uses bottom nav) */}
+      <div className="hidden sm:flex lg:hidden items-center justify-center p-2.5 bg-[#140b07] border-b border-[#382014]">
+        <div className="flex items-center gap-1 p-1 bg-[#0d0704] rounded-xl border border-[#382014] w-full max-w-sm shadow-inner">
           <button
-            onClick={() => setUploadToast(null)}
-            className="p-1 rounded-md text-[#789385] hover:text-[#f7f2e8]"
+            onClick={() => setMobileViewPane('songs')}
+            className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+              mobileViewPane === 'songs'
+                ? 'bg-gradient-to-r from-[#d97706] to-[#b45309] text-white shadow-md border border-[#f59e0b]/40'
+                : 'text-[#baa290] hover:text-[#fdf6e7]'
+            }`}
           >
-            <X className="w-3.5 h-3.5" />
+            <span>📼</span>
+            <span>കാസറ്റുകൾ (Cassettes)</span>
+          </button>
+          <button
+            onClick={() => setMobileViewPane('atmosphere')}
+            className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+              mobileViewPane === 'atmosphere'
+                ? 'bg-gradient-to-r from-[#d97706] to-[#b45309] text-white shadow-md border border-[#f59e0b]/40'
+                : 'text-[#baa290] hover:text-[#fdf6e7]'
+            }`}
+          >
+            <span>🍵</span>
+            <span>അന്തരീക്ഷം (Ambience Console)</span>
           </button>
         </div>
-      )}
+      </div>
 
-      {/* Top Navbar */}
-      <Navbar onAddClick={() => fileInputRef.current?.click()} />
+      {/* Main Split Layout: Desktop = Side-by-Side 50/50 | Mobile = Smart Tabbed Responsive View */}
+      <div className="flex-1 flex flex-col lg:flex-row w-full max-w-[1850px] mx-auto min-h-0">
+        {/* Left Side: Vintage Tea Stall Radio Shelf */}
+        <section className={`w-full lg:w-[410px] xl:w-[450px] 2xl:w-[470px] flex-shrink-0 border-b lg:border-b-0 lg:border-r border-[#3a2013] bg-[#140b07] p-4 md:p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-[#382014] ${
+          mobileViewPane === 'atmosphere' ? 'flex flex-col' : 'hidden lg:flex flex-col'
+        }`}>
+          <AtmosphericSplitConsole />
+        </section>
 
-      {/* Main Body with Sidebar + Content */}
-      <div className="flex-1 flex max-w-7xl w-full mx-auto">
-        <Sidebar currentTab={currentTab} setCurrentTab={(tab) => handleNavigate(tab)} />
-
-        <main className="flex-1 min-w-0 p-4 md:p-8">
+        {/* Right Side: Chayakada Music Lounge & Cassette Archive */}
+        <main className={`flex-1 min-w-0 p-4 md:p-6 lg:p-8 overflow-y-auto bg-[#0e0704] ${
+          mobileViewPane === 'songs' ? 'block' : 'hidden lg:block'
+        }`}>
           {currentTab === 'home' && (
             <Home
               onNavigate={handleNavigate}
@@ -358,27 +206,14 @@ function MainApp() {
               onDeletePlaylist={handleDeletePlaylist}
             />
           )}
-
-          {currentTab === 'add' && (
-            <AddMusic
-              onTrackAdded={() => { refreshUser(); }}
-              onNavigate={handleNavigate}
-            />
-          )}
         </main>
       </div>
 
       {/* Mobile Navigation bar */}
-      <MobileNav currentTab={currentTab} setCurrentTab={(tab) => handleNavigate(tab)} />
+      <MobileNav currentTab={currentTab} mobileViewPane={mobileViewPane} onNavigate={handleNavigate} />
 
       {/* Persistent Bottom Audio Player */}
       <Player />
-
-      {/* Queue Drawer */}
-      <QueueDrawer />
-
-      {/* Ambience Mixer Panel */}
-      <AmbiencePanel />
 
       {/* Global Modals */}
       <EditTrackModal
