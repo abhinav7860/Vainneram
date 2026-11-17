@@ -247,15 +247,21 @@ router.get('/:id/stream', authMiddleware, (req, res) => {
     }
 
     let filePath = track.file_path;
-    // Cross-platform fallback: if hardcoded absolute path doesn't exist on host, resolve in audioDir
-    if (!fs.existsSync(filePath)) {
-      const filename = path.basename(filePath);
-      const fallbackPath = path.join(audioDir, filename);
-      if (fs.existsSync(fallbackPath)) {
-        filePath = fallbackPath;
-      } else {
-        return res.status(404).json({ error: 'Audio file missing on disk' });
-      }
+    // Cross-platform resolution: handles Windows backslashes, relative paths, and Linux hosts (Render/Docker)
+    const normalized = filePath ? filePath.replace(/\\/g, '/') : '';
+    const filename = path.basename(normalized);
+    const audioDirCandidate = path.join(audioDir, filename);
+    const projectRelCandidate = path.join(__dirname, '..', normalized);
+
+    if (filePath && fs.existsSync(filePath)) {
+      // Direct path exists
+    } else if (fs.existsSync(audioDirCandidate)) {
+      filePath = audioDirCandidate;
+    } else if (fs.existsSync(projectRelCandidate)) {
+      filePath = projectRelCandidate;
+    } else {
+      console.error(`Audio file missing: original="${track.file_path}", filename="${filename}", audioDirCandidate="${audioDirCandidate}"`);
+      return res.status(404).json({ error: 'Audio file missing on disk' });
     }
 
     const stat = fs.statSync(filePath);
