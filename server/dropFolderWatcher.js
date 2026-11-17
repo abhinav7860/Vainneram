@@ -68,6 +68,8 @@ async function scanDropFolder() {
       let duration = 0;
       let bitrate = 0;
       let coverUrl = '';
+      let picData = null;
+      let picExt = '.jpg';
 
       try {
         const meta = await parseFile(sourcePath);
@@ -80,11 +82,8 @@ async function scanDropFolder() {
 
           if (meta.common?.picture && meta.common.picture.length > 0) {
             const pic = meta.common.picture[0];
-            const pExt = pic.format?.includes('png') ? '.png' : '.jpg';
-            const coverFilename = `drop-${Date.now()}-${uuidv4().slice(0, 6)}${pExt}`;
-            const coverPath = path.join(coversDir, coverFilename);
-            fs.writeFileSync(coverPath, pic.data);
-            coverUrl = `/api/tracks/cover/${coverFilename}`;
+            picExt = pic.format?.includes('png') ? '.png' : '.jpg';
+            picData = pic.data;
           }
         }
       } catch (err) {
@@ -105,10 +104,17 @@ async function scanDropFolder() {
       const sharedUserId = 'shared_library_user';
 
       // Check if duplicate track exists by title & artist
-      const existing = db.prepare('SELECT id FROM tracks WHERE user_id = ? AND title = ? AND artist = ?').get(sharedUserId, title, artist);
+      const existing = db.prepare('SELECT id FROM tracks WHERE user_id = ? AND (title = ? OR file_name = ?)').get(sharedUserId, title, file);
       if (existing) {
-        // Already exists in DB - do NOT delete from drop folder!
+        // Already exists in DB - do NOT duplicate or write cover!
         continue;
+      }
+
+      if (picData) {
+        const coverFilename = `drop-${Date.now()}-${uuidv4().slice(0, 6)}${picExt}`;
+        const coverPath = path.join(coversDir, coverFilename);
+        fs.writeFileSync(coverPath, picData);
+        coverUrl = `/api/tracks/cover/${coverFilename}`;
       }
 
       const trackId = uuidv4();

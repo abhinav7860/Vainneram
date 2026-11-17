@@ -18,7 +18,8 @@ import {
   Pause,
   SkipForward,
   Power,
-  Volume2
+  Volume2,
+  ExternalLink
 } from 'lucide-react';
 import { useAmbience } from '../context/AmbienceContext';
 import { usePlayer } from '../context/PlayerContext';
@@ -624,9 +625,20 @@ export function AtmosphericSplitConsole() {
         <p className="text-[11px] text-[#fed7aa]/80 font-malayalam leading-relaxed">
           "ഒരു കപ്പ് കട്ടൻ ചായയും, ചാറ്റൽ മഴയും, ഓർമ്മകളുടെ സംഗീതവും..."
         </p>
-        <span className="text-[9px] font-mono text-[#8a6e5a] tracking-widest uppercase block mt-0.5">
-          VAINNERAM • NADAN CHAYAKADA
-        </span>
+        <div className="flex items-center justify-center gap-2 mt-1.5 text-[10px] text-[#8a6e5a]">
+          <span>Created by <strong className="text-[#deb17a] font-semibold">Abhinav Sabu</strong></span>
+          <span>•</span>
+          <a
+            href="https://github.com/abhinav7860/Vainneram"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#deb17a] hover:text-[#fef3c7] hover:underline font-mono inline-flex items-center gap-1 select-none"
+            title="View on GitHub"
+          >
+            GitHub
+            <ExternalLink className="w-2.5 h-2.5" />
+          </a>
+        </div>
       </div>
     </div>
   );
